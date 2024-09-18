@@ -13,21 +13,24 @@ import os
 import psycopg2
 
 
-def main():
+def get_db_uri() -> str:
+    """Get the databse URI from the environment varaible.
+
+    Raises:
+        ValueError, if the FLOW_DB_URI environment variable is not set.
+
+    Returns:
+        str, the FLOW_DB_URI environment variable.
+    """
     service_uri = os.environ["FLOW_DB_URI"]
     if not service_uri:
         raise ValueError("FLOW_DB_URI: environment variable is not set.")
-
-    conn = psycopg2.connect(service_uri)
-
-    query_sql = 'SELECT VERSION()'
-
-    cur = conn.cursor()
-    cur.execute(query_sql)
-
-    version = cur.fetchone()[0]
-    print(version)
+    else:
+        return service_uri
 
 
-if __name__ == "__main__":
-    main()
+def get_db_connection():
+    service_uri = get_db_uri()
+
+    # Establish a connection to the DB
+    return psycopg2.connect(service_uri)
