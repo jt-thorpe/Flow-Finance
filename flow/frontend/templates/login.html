@@ -1,0 +1,56 @@
+<!-- templates/login.html -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script>
+        async function handleLogin(event) {
+            event.preventDefault();  // Prevent form from submitting normally
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            // Simple validation
+            if (!email || !password) {
+                alert("Email and password are required");
+                return;
+            }
+
+            // Send the data to the backend via POST request
+            const response = await fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+
+            // Check response from server
+            if (result.success) {
+                window.location.href = '/dashboard';  // Redirect on successful login
+            } else {
+                alert(result.message);  // Show error message on failure
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <h2>Login</h2>
+    <form id="loginForm" onsubmit="handleLogin(event)">
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email"><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+
+        <input type="submit" value="Login">
+    </form>
+</body>
+
+</html>
