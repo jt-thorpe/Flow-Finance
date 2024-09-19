@@ -2,7 +2,7 @@ from flask import Flask, render_template
 
 from flow.backend.postgresql.connect import get_db_connection
 
-app = Flask(__name__, template_folder='/app/flow/templates/')  # Docker dirpath
+app = Flask(__name__, template_folder='/app/flow/frontend/templates/')  # prepend /app/ for Docker
 
 
 @app.route('/')
