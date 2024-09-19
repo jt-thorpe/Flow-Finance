@@ -1,0 +1,8 @@
+# Exclude pycache and other unnecessary files
+__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+README.md
+.vscode/
