@@ -1,11 +1,12 @@
-from flask import (Flask, flash, jsonify, redirect, render_template, request,
-                   session, url_for)
+from flask import (Flask, jsonify, redirect, render_template, request, session,
+                   url_for)
 
 from flow.backend.postgresql.connect import get_db_connection
 
-app = Flask(__name__, template_folder='/app/flow/frontend/templates/')  # prepend /app/ for Docker
+app = Flask(__name__,
+            template_folder='/app/flow/frontend/templates/',
+            static_folder='/app/flow/frontend/static/')  # prepend /app/ for Docker
 
-app.secret_key = 'your_secret_key'  # Needed for session management
 
 # Dummy user data for example purposes
 users = {'user@example.com': 'password123'}
