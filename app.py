@@ -1,10 +1,9 @@
-from flask import (Flask, jsonify, redirect, render_template, request, session,
-                   url_for)
+from flask import Flask, jsonify, redirect, render_template, request, url_for
 from flask.typing import ResponseClass
 
 from flow.backend.authentication.auth import authenticate
-from flow.backend.postgresql.connect import get_db_connection
-from flow.backend.postgresql.database import Base, engine, get_session
+from flow.backend.postgresql.database import (Base, engine, get_db_connection,
+                                              get_session)
 from flow.backend.postgresql.models import User
 
 app = Flask(__name__,
