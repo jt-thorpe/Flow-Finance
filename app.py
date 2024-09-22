@@ -44,8 +44,14 @@ def login_authenticate():
     user = authenticate(data['email'], data['password'])
 
     if user:
-        return jsonify({'success': True, 'redirect': url_for('home')}), 200
+        return jsonify({'success': True, 'redirect': url_for('dashboard_serve')}), 200
     return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
+
+
+@app.route('/dashboard', methods=['GET'])
+def dashboard_serve() -> str:
+    """Serve `dashboard.html` page."""
+    return render_template('dashboard.html')
 
 
 @app.route('/home')
