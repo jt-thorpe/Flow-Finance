@@ -1,16 +1,16 @@
 async function handleLogin(event) {
-    event.preventDefault();  // Prevent form from submitting normally
+    event.preventDefault();
 
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
-    // Simple validation
+    // TODO: extract and improve validation logic
     if (!email && !password) {
         alert("Please provide your email and password.");
         return;
     }
 
-    // Send the data to the backend via POST request
+    // Send the data to app.py via POST request
     const response = await fetch('/login', {
         method: 'POST',
         headers: {
@@ -21,10 +21,9 @@ async function handleLogin(event) {
 
     const result = await response.json();
 
-    // Check response from server
     if (result.success) {
-        window.location.href = '/dashboard';  // Redirect on successful login
+        window.location.href = result.redirect;
     } else {
-        alert(result.message);  // Show error message on failure
+        alert(result.message);
     }
 }
