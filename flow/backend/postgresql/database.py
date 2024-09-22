@@ -7,10 +7,18 @@ ENVIRONMENT_VARIABLES:
     - FLOW_DB_URI: the URI from the postgresql hosting service
 """
 
-
 import os
 
 import psycopg2
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+engine = create_engine(url=os.environ["FLOW_DB_URI"], echo=True)
+Session = sessionmaker(bind=engine)
+
+
+def get_session():
+    return Session()
 
 
 def get_db_uri() -> str:
