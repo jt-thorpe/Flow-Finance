@@ -10,18 +10,6 @@ ENVIRONMENT_VARIABLES:
 import os
 
 import psycopg2
-from sqlalchemy import create_engine, select
-from sqlalchemy.orm import sessionmaker
-
-from flow.backend.postgresql.models import Transaction, User
-
-engine = create_engine(url=os.environ["FLOW_DB_URI"], echo=True)
-Session = sessionmaker(bind=engine)
-
-
-def get_session():
-    """Get the Session object."""
-    return Session()
 
 
 def get_db_uri() -> str:
@@ -45,23 +33,3 @@ def get_db_connection():
 
     # Establish a connection to the DB
     return psycopg2.connect(service_uri)
-
-
-def get_user_transactions(user_id: str) -> list[Transaction]:  # Hint might be wrong
-    """Get all transactions for a User.
-
-    Args:
-        user_id, str: the UUID of the user taken from the JWT token.
-
-    Returns:
-        list[Transaction]: a list of Transaction objects.
-    """
-    transactions = get_session().execute(
-        select(Transaction.id,
-               Transaction.date,
-               Transaction.description,
-               Transaction.category,
-               Transaction.amount).where(User.id == user_id)
-    ).all()
-
-    return transactions
