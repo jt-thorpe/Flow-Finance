@@ -1,5 +1,3 @@
-from sqlalchemy import select
-
 from extensions import db
 from flow.backend.postgresql.models import Transaction, User
 
@@ -14,12 +12,13 @@ def get_n_transactions(user_id: str, N: int = 10) -> list[Transaction]:  # Hint 
     Returns:
         list[Transaction]: a list of Transaction objects.
     """
-    transactions = db.session.execute(
-        select(Transaction.id,
-               Transaction.date,
-               Transaction.description,
-               Transaction.category,
-               Transaction.amount).where(User.id == user_id)
-    ).fetchmany(size=N)
+    transactions = (
+        db.session.query(Transaction)
+        .join(User)
+        .filter(User.id == user_id)
+        .order_by(Transaction.date.desc())
+        .limit(N)
+        .all()
+    )
 
     return transactions
