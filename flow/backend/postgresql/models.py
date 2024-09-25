@@ -1,30 +1,36 @@
 import uuid
+from typing import Optional
 
-from sqlalchemy import String, text
+from sqlalchemy import Date, Float, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import (DeclarativeBase, Mapped, MappedAsDataclass,
-                            mapped_column)
+
+from extensions import db
 
 
-class Base(DeclarativeBase):
-    pass
-
-
-class User(MappedAsDataclass, Base):
-    """A 'User' dataclass which is mapped via ORM to a 'user' table.
-
-    A value for User.id should not be passed when creating a User. The generation of
-    User.id is handled explicitly by the database.
-    """
+class User(db.Model):
+    """A 'User' class mapped via ORM to the 'user_account' table."""
 
     __tablename__ = "user_account"
 
-    # `init=False` ensures we cannot pass `id` when instantiating a User
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True),
-                                          init=False,
-                                          primary_key=True,
-                                          unique=True,
-                                          server_default=text("gen_random_uuid()"))
-    email: Mapped[str] = mapped_column(String(100),
-                                       unique=True)
-    password: Mapped[str] = mapped_column(String(100))
+    id: uuid.UUID = db.Column(UUID(as_uuid=True),
+                              primary_key=True,
+                              unique=True,
+                              server_default=text("gen_random_uuid()"))
+    email: str = db.Column(String(100), unique=True, nullable=False)
+    password: str = db.Column(String(100), nullable=False)
+
+
+class Transaction(db.Model):  # Inherit from db.Model
+    """A 'Transaction' class mapped via ORM to the 'transaction' table."""
+
+    __tablename__ = "transaction"
+
+    id: uuid.UUID = db.Column(UUID(as_uuid=True),
+                              primary_key=True,
+                              unique=True,
+                              server_default=text("gen_random_uuid()"))
+    user_id: uuid.UUID = db.Column(ForeignKey("user_account.id"), nullable=False)
+    amount: float = db.Column(Float, nullable=False)
+    description: Optional[str] = db.Column(String(100), nullable=True)
+    date: Date = db.Column(Date, nullable=False)
+    category: Optional[str] = db.Column(String(100), nullable=True)

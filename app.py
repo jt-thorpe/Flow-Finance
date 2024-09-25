@@ -1,17 +1,25 @@
-from flask import Flask, jsonify, render_template, request, url_for
+import os
+
+from flask import (Flask, jsonify, make_response, render_template, request,
+                   url_for)
 from sqlalchemy.exc import IntegrityError
 
-from flow.backend.authentication.auth import (authenticate,
+from extensions import db
+from flow.backend.authentication.auth import (authenticate, generate_token,
+                                              login_required,
                                               register_user_account)
-from flow.backend.postgresql.database import engine, get_db_connection
-from flow.backend.postgresql.models import Base
+from flow.backend.postgresql.queries import get_n_transactions
 
 app = Flask(__name__,
             template_folder='/app/flow/frontend/templates/',
             static_folder='/app/flow/frontend/static/')  # prepend /app/ for Docker
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['FLOW_DB_URI']
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+db.init_app(app)
 
-Base.metadata.create_all(engine)
+with app.app_context():
+    db.create_all()
 
 
 @app.route('/register', methods=['GET'])
@@ -41,26 +49,25 @@ def login_serve() -> str:
 @app.route('/login', methods=['POST'])
 def login_authenticate():
     data = request.json
-    user = authenticate(data['email'], data['password'])
+    user_id = authenticate(data['email'], data['password'])
+    print(f"USER =============== {user_id}")
 
-    if user:
-        return jsonify({'success': True, 'redirect': url_for('home')}), 200
+    if user_id:
+        token = generate_token(user_id=user_id)
+        print(f"TOKEN =============== {token}")
+        response = make_response(jsonify({'success': True, 'redirect': url_for('dashboard_serve')}), 200)
+        response.set_cookie('jwt_token', token, httponly=True, secure=True, samesite='Strict')
+        return response
     return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
 
 
-@app.route('/home')
-def home():
-    conn = get_db_connection()
-
-    cur = conn.cursor()
-    cur.execute('SELECT version();')
-
-    db_version = cur.fetchone()
-
-    cur.close()
-    conn.close()
-
-    return render_template('index.html', title="My Budget App", db_version=db_version)
+@app.route('/dashboard', methods=['GET'])
+@login_required
+def dashboard_serve() -> str:
+    """Serve `dashboard.html` page."""
+    user_id = request.user_id
+    return render_template('dashboard.html',
+                           transactions=get_n_transactions(user_id=user_id, N=10))
 
 
 if __name__ == '__main__':
