@@ -8,7 +8,7 @@ from extensions import db
 from flow.backend.authentication.auth import (authenticate, generate_token,
                                               login_required,
                                               register_user_account)
-from flow.backend.postgresql.queries import get_n_transactions
+from flow.backend.postgresql.queries import get_budgets_by, get_n_transactions
 
 app = Flask(__name__,
             template_folder='/app/flow/frontend/templates/',
@@ -65,10 +65,9 @@ def login_authenticate():
 @login_required
 def dashboard_serve() -> str:
     """Serve `dashboard.html` page."""
-    user_id = request.user_id
-    latest_transactions = get_n_transactions(user_id=user_id, N=10)
     return render_template('dashboard.html',
-                           transactions=latest_transactions)
+                           transactions=get_n_transactions(user_id=request.user_id, N=10),
+                           budgets=get_budgets_by(request.user_id))
 
 
 if __name__ == '__main__':

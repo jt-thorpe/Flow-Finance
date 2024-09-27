@@ -64,13 +64,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- Loop through recent transactions -->
                         {% for transaction in transactions %}
                         <tr>
-                            <td>{{ transaction.date }}</td> <!-- Date -->
-                            <td>{{ transaction.amount }}</td> <!-- Amount -->
-                            <td>{{ transaction.category.value }}</td> <!-- Category -->
-                            <td>{{ transaction.description }}</td> <!-- Description -->
+                            <td>{{ transaction.date }}</td>
+                            <td>{{ transaction.amount }}</td>
+                            <td>{{ transaction.category.value }}</td>
+                            <td>{{ transaction.description }}</td>
                         </tr>
                         {% else %}
                         <tr>
@@ -96,24 +95,16 @@
                         </tr>
                     </thead>
                     <tbody>
+                        {% for budget in budgets %}
                         <tr>
-                            <td>Food</td>
-                            <td>$300.00</td>
-                            <td>$200.00</td>
-                            <td>$100.00</td>
+                            <td>{{ budget.category.value }}</td>
+                            <td>{{ budget.amount }}</td>
                         </tr>
+                        {% else %}
                         <tr>
-                            <td>Entertainment</td>
-                            <td>$150.00</td>
-                            <td>$50.00</td>
-                            <td>$100.00</td>
+                            <td colspan="4">No budget information available.</td>
                         </tr>
-                        <tr>
-                            <td>Bills</td>
-                            <td>$500.00</td>
-                            <td>$400.00</td>
-                            <td>$100.00</td>
-                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>
