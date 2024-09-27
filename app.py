@@ -66,8 +66,9 @@ def login_authenticate():
 def dashboard_serve() -> str:
     """Serve `dashboard.html` page."""
     user_id = request.user_id
+    latest_transactions = get_n_transactions(user_id=user_id, N=10)
     return render_template('dashboard.html',
-                           transactions=get_n_transactions(user_id=user_id, N=10))
+                           transactions=latest_transactions)
 
 
 if __name__ == '__main__':

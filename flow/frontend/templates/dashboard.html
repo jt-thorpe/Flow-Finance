@@ -58,9 +58,9 @@
                     <thead>
                         <tr>
                             <th>Date</th>
-                            <th>Description</th>
-                            <th>Category</th>
                             <th>Amount</th>
+                            <th>Category</th>
+                            <th>Description</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -68,9 +68,9 @@
                         {% for transaction in transactions %}
                         <tr>
                             <td>{{ transaction.date }}</td> <!-- Date -->
-                            <td>{{ transaction.description }}</td> <!-- Description -->
-                            <td>{{ transaction.category }}</td> <!-- Category -->
                             <td>{{ transaction.amount }}</td> <!-- Amount -->
+                            <td>{{ transaction.category.value }}</td> <!-- Category -->
+                            <td>{{ transaction.description }}</td> <!-- Description -->
                         </tr>
                         {% else %}
                         <tr>
