@@ -59,3 +59,21 @@ class Transaction(db.Model):
                                        nullable=False)
     description: Optional[str] = db.Column(String(100),
                                            nullable=True)
+
+
+class Budget(db.Model):
+    """Models a user's budget for a given category."""
+
+    __tablename__ = "budget"
+
+    id: uuid.UUID = db.Column(UUID(as_uuid=True),
+                              primary_key=True,
+                              unique=True,
+                              server_default=text(GEN_RANDOM_UUID))
+    user_id: uuid.UUID = db.Column(ForeignKey("user_account.id"),
+                                   nullable=False)
+    category: CategoryName = db.Column(Enum(CategoryName),
+                                       nullable=False,
+                                       unique=True)
+    amount: float = db.Column(db.Float,
+                              nullable=False)
