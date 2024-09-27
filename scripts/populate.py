@@ -1,15 +1,25 @@
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 from app import app
 from extensions import db
 from flow.backend.authentication.auth import _hash_password
-from flow.backend.postgresql.models import CategoryName, Transaction, User
+from flow.backend.postgresql.models import (Budget, CategoryName, Transaction,
+                                            User)
 
 """A script to populate the database with dummy data."""
 
 
+def reset_database():
+    """Drops all tables in the database and recreates them."""
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+
+
 def main():
     with app.app_context():
+        reset_database()
+
         # Add some dummy data to the database
         h_password = _hash_password("password")
         test_user = User(email="example@mail.com", password=h_password)
@@ -31,6 +41,15 @@ def main():
         db.session.add(test_transaction_2)
         db.session.add(test_transaction_3)
         db.session.commit()
+
+        test_budget_1 = Budget(user_id=test_user_id[0], category=CategoryName.RENT, amount=500.00)
+        test_budget_2 = Budget(user_id=test_user_id[0], category=CategoryName.MORTGAGE, amount=300.00)
+        test_budget_3 = Budget(user_id=test_user_id[0], category=CategoryName.UTILITIES, amount=200.00)
+        db.session.add(test_budget_1)
+        db.session.add(test_budget_2)
+        db.session.add(test_budget_3)
+        db.session.commit()
+
         db.session.close()
 
 
