@@ -2,7 +2,7 @@ import datetime
 import os
 import uuid
 from functools import wraps
-from typing import Final
+from typing import Callable, Final
 
 import jwt
 from argon2 import PasswordHasher
@@ -156,7 +156,7 @@ def verify_token(token: str) -> str | bool:
         return False
 
 
-def login_required(f):
+def login_required(f: Callable) -> Callable:
     """A decorator to require a user to be logged in to access a route.
 
     Args:
