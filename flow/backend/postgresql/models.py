@@ -31,6 +31,8 @@ class User(db.Model):
                            nullable=False)
     password: str = db.Column(db.String(100),
                               nullable=False)
+    alias: str = db.Column(db.String(30),
+                           nullable=False)
 
 
 class Income(db.Model):
@@ -59,8 +61,8 @@ class Income(db.Model):
                            nullable=False)
     frequency: Frequency = db.Column(Enum(Frequency),
                                      nullable=True)
-    amount: float = db.Column(db.Float,
-                              nullable=False)
+    amount: int = db.Column(db.Integer,
+                            nullable=False)
     description: Optional[str] = db.Column(String(100),
                                            nullable=True)
 
@@ -91,8 +93,8 @@ class Expense(db.Model):
                            nullable=False)
     frequency: Frequency = db.Column(Enum(Frequency),
                                      nullable=True)
-    amount: float = db.Column(db.Float,
-                              nullable=False)
+    amount: int = db.Column(db.Integer,
+                            nullable=False)
 
     description: Optional[str] = db.Column(String(100),
                                            nullable=True)
@@ -122,5 +124,5 @@ class Budget(db.Model):
                                           unique=True)
     frequency: Frequency = db.Column(Enum(Frequency),
                                      nullable=False)
-    amount: float = db.Column(db.Float,
-                              nullable=False)
+    amount: int = db.Column(db.Integer,
+                            nullable=False)

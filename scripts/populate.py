@@ -30,7 +30,7 @@ def add_test_user():
     """Adds a test user to the database."""
     print("Adding test user...")
     h_password = _hash_password("password")
-    test_user = User(email="example@mail.com", password=h_password)
+    test_user = User(email="example@mail.com", password=h_password, alias="Captain Test")
     db.session.add(test_user)
     db.session.commit()
     print("Test user added.")
@@ -50,13 +50,13 @@ def add_test_income(test_user_id):
                            category=IncomeCategory.SALARY,
                            date="2021-01-01",
                            frequency=Frequency.MONTHLY,
-                           amount=2000.00,
+                           amount=200000,
                            description="An example of some income")
     test_income_2 = Income(user_id=test_user_id,
                            category=IncomeCategory.INTEREST,
                            date="2021-01-01",
                            frequency=Frequency.ANNUALLY,
-                           amount=100.00,
+                           amount=10000,
                            description="An example of some interest")
     db.session.add(test_income_1)
     db.session.add(test_income_2)
@@ -67,22 +67,22 @@ def add_test_income(test_user_id):
 def add_test_expense(test_user_id):
     print("Adding test expense data...")
     test_expense_1 = Expense(user_id=test_user_id,
-                             amount=100.00,
+                             amount=10000,
                              description="Test transaction 1",
                              date="2021-01-01",
                              category=ExpenseCategory.RENT)
     test_expense_2 = Expense(user_id=test_user_id,
-                             amount=50.00,
+                             amount=5000,
                              description="Test transaction 2",
                              date="2021-01-02",
                              category=ExpenseCategory.MORTGAGE)
     test_expense_3 = Expense(user_id=test_user_id,
-                             amount=75.00,
+                             amount=7500,
                              description="Test transaction 3",
                              date="2021-01-03",
                              category=ExpenseCategory.UTILITIES)
     test_expense_4 = Expense(user_id=test_user_id,
-                             amount=33.00,
+                             amount=3300,
                              description="Test transaction 4",
                              date="2021-01-04",
                              category=ExpenseCategory.UTILITIES)
@@ -99,15 +99,15 @@ def add_test_budgets(test_user_id):
     test_budget_1 = Budget(user_id=test_user_id,
                            category=ExpenseCategory.RENT,
                            frequency=Frequency.MONTHLY,
-                           amount=500.00)
+                           amount=50000)
     test_budget_2 = Budget(user_id=test_user_id,
                            category=ExpenseCategory.MORTGAGE,
                            frequency=Frequency.MONTHLY,
-                           amount=300.00)
+                           amount=30000)
     test_budget_3 = Budget(user_id=test_user_id,
                            category=ExpenseCategory.UTILITIES,
                            frequency=Frequency.FOUR_WEEKLY,
-                           amount=200.00)
+                           amount=20000)
     db.session.add(test_budget_1)
     db.session.add(test_budget_2)
     db.session.add(test_budget_3)
