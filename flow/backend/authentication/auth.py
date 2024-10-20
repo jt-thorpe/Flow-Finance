@@ -15,6 +15,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from extensions import db
 from flow.backend.postgresql.models import User
 
+# TODO: Not sure why I have this as a global here. I think I thought not creating a PH repeatadly was better.
 PH: Final[PasswordHasher] = PasswordHasher()
 
 
@@ -73,8 +74,8 @@ def register_user_account(email: str, password: str) -> None:
         email, str: the email address of the user
         password, str: the password of the user
     """
-    hashed_password = _hash_password(password=password)
-    _add_user_account_to_db(email=email, hashed_password=hashed_password)
+    _add_user_account_to_db(email=email,
+                            hashed_password=_hash_password(password=password))
 
 
 def authenticate(email: str, password: str) -> User | None:
@@ -158,6 +159,10 @@ def verify_token(token: str) -> str | bool:
 
 def login_required(f: Callable) -> Callable:
     """A decorator to require a user to be logged in to access a route.
+
+    Essentially, this decorator checks if a user is logged in by checking for a JWT token in the cookies. If the token
+    is present, it is decoded to extract the user information. If the token is not present or invalid, the user is
+    redirected to the login page and the decorated function is not executed.
 
     Args:
         f: the function to be decorated
