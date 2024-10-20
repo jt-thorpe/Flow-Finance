@@ -1,9 +1,10 @@
-# Use official Python image as base
+# Official Python image as base
 FROM python:3.12-slim
 
-# Set environment variables
+# stop .pyc generation
 ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
+# real-time terminal output
+ENV PYTHONUNBUFFERED=1 
 
 # Set the working directory in the container
 WORKDIR /app
