@@ -71,6 +71,18 @@ class Income(db.Model):
 
     user = db.relationship("User", back_populates="incomes")
 
+    def to_dict(self) -> dict:
+        """Convert the instance to a dictionary."""
+        return {
+            "id": str(self.id),
+            "user_id": str(self.user_id),
+            "category": self.category.name,
+            "date": str(self.date),
+            "frequency": self.frequency.name if self.frequency else None,
+            "amount": self.amount,
+            "description": self.description
+        }
+
 
 class Expense(db.Model):
     """Models a user's financial expenses.
@@ -106,6 +118,18 @@ class Expense(db.Model):
 
     user = db.relationship("User", back_populates="expenses")
 
+    def to_dict(self) -> dict:
+        """Convert the instance to a dictionary."""
+        return {
+            "id": str(self.id),
+            "user_id": str(self.user_id),
+            "category": self.category.name,
+            "date": str(self.date),
+            "frequency": self.frequency.name if self.frequency else None,
+            "amount": self.amount,
+            "description": self.description
+        }
+
 
 class Budget(db.Model):
     """Models a user's budget for a given expense category.
@@ -134,3 +158,13 @@ class Budget(db.Model):
                             nullable=False)
 
     user = db.relationship("User", back_populates="budgets")
+
+    def to_dict(self) -> dict:
+        """Convert the instance to a dictionary."""
+        return {
+            "id": str(self.id),
+            "user_id": str(self.user_id),
+            "category": self.category.name,
+            "frequency": self.frequency.name,
+            "amount": self.amount
+        }

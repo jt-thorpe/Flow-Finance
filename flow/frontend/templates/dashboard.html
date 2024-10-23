@@ -30,23 +30,23 @@
 
         <!-- Dashboard Header -->
         <div class="dashboard-header">
-            <h1>Welcome back, [User's Name]!</h1>
+            <h1>Welcome back, {{ user_alias }}!</h1>
             <p>Your financial overview at a glance.</p>
         </div>
 
         <!-- Overview Cards -->
         <div class="overview-cards">
             <div class="card">
-                <h2>Total Balance</h2>
-                <p>$5,200.00</p>
+                <h2>Total Income</h2>
+                <p>$3,000.00</p>
             </div>
             <div class="card">
                 <h2>Total Expenses</h2>
                 <p>$1,200.00</p>
             </div>
             <div class="card">
-                <h2>Total Income</h2>
-                <p>$3,000.00</p>
+                <h2>Total Balance</h2>
+                <p>$5,200.00</p>
             </div>
         </div>
 
@@ -66,10 +66,10 @@
                     <tbody>
                         {% for transaction in transactions %}
                         <tr>
-                            <td>{{ transaction.date }}</td>
-                            <td>{{ transaction.amount }}</td>
-                            <td>{{ transaction.category.value }}</td>
-                            <td>{{ transaction.description }}</td>
+                            <td>{{ transaction["date"] }}</td>
+                            <td>{{ transaction["amount"] }}</td>
+                            <td>{{ transaction["category"] }}</td>
+                            <td>{{ transaction["description"] }}</td>
                         </tr>
                         {% else %}
                         <tr>
@@ -95,10 +95,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for budget in budgets %}
+                        {% for item in budget_summary %}
                         <tr>
-                            <td>{{ budget.category.value }}</td>
-                            <td>{{ budget.amount }}</td>
+                            <td>{{ item.category }}</td>
+                            <td>{{ item.amount }}</td>
+                            <td>{{ item.spent }}</td>
+                            <td>{{ item.remaining }}</td>
                         </tr>
                         {% else %}
                         <tr>
