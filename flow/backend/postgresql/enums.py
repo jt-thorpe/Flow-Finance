@@ -11,24 +11,30 @@ class Frequency(enum.Enum):
     ANNUALLY = "annually"
 
 
-class ExpenseCategory(enum.Enum):
-    """Represents possible categories for a users expenses."""
-    RENT = "rent"
-    MORTGAGE = "mortgage"
-    UTILITIES = "utilities"
-    SUBSCRIPTION = "subscription"
-    LEISURE = "leisure"
-    GROCERIES = "groceries"
-    DINING = "dining"
-    ALCOHOL = "alcohol"
-    HEALTH = "health"
-    SPORT = "sport"
-    GIGS = "gigs"
-    EVENT = "event"
+class TransactionCategory(enum.IntEnum):
+    """Represents possible categories for a user's transactions.
 
+    Integers from 0 to 50 are reserved for EXPENSE categories.
+    Integers from 51 to 100 are reserved for INCOME categories.
+    """
+    # EXPENSES
+    RENT = 0
+    MORTGAGE = 1
+    UTILITIES = 2
+    SUBSCRIPTION = 3
+    LEISURE = 4
+    GROCERIES = 5
+    DINING = 6
+    ALCOHOL = 7
+    HEALTH = 8
+    SPORT = 9
+    GIGS = 10
+    EVENT = 11
 
-class IncomeCategory(enum.Enum):
-    """Represents possible categories for a users income."""
-    SALARY = "salary"
-    INTEREST = "interest"
-    BONUS = "bonus"
+    # INCOME
+    SALARY = 51
+    INTEREST = 52
+    BONUS = 53
+    DIVIDEND = 54
+    REFUND = 55
+    GIFT = 56

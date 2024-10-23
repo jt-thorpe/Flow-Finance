@@ -6,8 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
 
 from extensions import db
-from flow.backend.postgresql.enums import (ExpenseCategory, Frequency,
-                                           IncomeCategory)
+from flow.backend.postgresql.enums import Frequency, TransactionCategory
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 
@@ -34,6 +33,10 @@ class User(db.Model):
     alias: str = db.Column(db.String(30),
                            nullable=False)
 
+    incomes = db.relationship("Income", back_populates="user")
+    expenses = db.relationship("Expense", back_populates="user")
+    budgets = db.relationship("Budget", back_populates="user")
+
 
 class Income(db.Model):
     """Models a user's finacial income.
@@ -55,8 +58,8 @@ class Income(db.Model):
                               server_default=text(GEN_RANDOM_UUID))
     user_id: uuid.UUID = db.Column(ForeignKey("user_account.id"),
                                    nullable=False)
-    category: IncomeCategory = db.Column(Enum(IncomeCategory),
-                                         nullable=False)
+    category: TransactionCategory = db.Column(Enum(TransactionCategory),
+                                              nullable=False)
     date: Date = db.Column(db.Date,
                            nullable=False)
     frequency: Frequency = db.Column(Enum(Frequency),
@@ -65,6 +68,8 @@ class Income(db.Model):
                             nullable=False)
     description: Optional[str] = db.Column(String(100),
                                            nullable=True)
+
+    user = db.relationship("User", back_populates="incomes")
 
 
 class Expense(db.Model):
@@ -87,8 +92,8 @@ class Expense(db.Model):
                               server_default=text(GEN_RANDOM_UUID))
     user_id: uuid.UUID = db.Column(ForeignKey("user_account.id"),
                                    nullable=False)
-    category: ExpenseCategory = db.Column(Enum(ExpenseCategory),
-                                          nullable=False)
+    category: TransactionCategory = db.Column(Enum(TransactionCategory),
+                                              nullable=False)
     date: Date = db.Column(db.Date,
                            nullable=False)
     frequency: Frequency = db.Column(Enum(Frequency),
@@ -98,6 +103,8 @@ class Expense(db.Model):
 
     description: Optional[str] = db.Column(String(100),
                                            nullable=True)
+
+    user = db.relationship("User", back_populates="expenses")
 
 
 class Budget(db.Model):
@@ -110,7 +117,6 @@ class Budget(db.Model):
         frequency: The frequency of the budget.
         amount: The amount of the budget.
     """
-
     __tablename__ = "budget"
 
     id: uuid.UUID = db.Column(UUID(as_uuid=True),
@@ -119,10 +125,12 @@ class Budget(db.Model):
                               server_default=text(GEN_RANDOM_UUID))
     user_id: uuid.UUID = db.Column(ForeignKey("user_account.id"),
                                    nullable=False)
-    category: ExpenseCategory = db.Column(Enum(ExpenseCategory),
-                                          nullable=False,
-                                          unique=True)
+    category: TransactionCategory = db.Column(Enum(TransactionCategory),
+                                              nullable=False,
+                                              unique=True)
     frequency: Frequency = db.Column(Enum(Frequency),
                                      nullable=False)
     amount: int = db.Column(db.Integer,
                             nullable=False)
+
+    user = db.relationship("User", back_populates="budgets")

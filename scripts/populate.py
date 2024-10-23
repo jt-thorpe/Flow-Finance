@@ -3,10 +3,8 @@ from sqlalchemy import select, text
 from app import app
 from extensions import db
 from flow.backend.authentication.auth import _hash_password
-from flow.backend.postgresql.enums import (ExpenseCategory, Frequency,
-                                           IncomeCategory)
-from flow.backend.postgresql.models import (Budget, Expense, ExpenseCategory,
-                                            Income, User)
+from flow.backend.postgresql.enums import Frequency, TransactionCategory
+from flow.backend.postgresql.models import Budget, Expense, Income, User
 
 """A script to populate the database with test data."""
 
@@ -47,13 +45,13 @@ def get_test_user_id():
 def add_test_income(test_user_id):
     print("Adding test income data...")
     test_income_1 = Income(user_id=test_user_id,
-                           category=IncomeCategory.SALARY,
+                           category=TransactionCategory.SALARY,
                            date="2021-01-01",
                            frequency=Frequency.MONTHLY,
                            amount=200000,
                            description="An example of some income")
     test_income_2 = Income(user_id=test_user_id,
-                           category=IncomeCategory.INTEREST,
+                           category=TransactionCategory.INTEREST,
                            date="2021-01-01",
                            frequency=Frequency.ANNUALLY,
                            amount=10000,
@@ -70,22 +68,22 @@ def add_test_expense(test_user_id):
                              amount=10000,
                              description="Test transaction 1",
                              date="2021-01-01",
-                             category=ExpenseCategory.RENT)
+                             category=TransactionCategory.RENT)
     test_expense_2 = Expense(user_id=test_user_id,
                              amount=5000,
                              description="Test transaction 2",
                              date="2021-01-02",
-                             category=ExpenseCategory.MORTGAGE)
+                             category=TransactionCategory.MORTGAGE)
     test_expense_3 = Expense(user_id=test_user_id,
                              amount=7500,
                              description="Test transaction 3",
                              date="2021-01-03",
-                             category=ExpenseCategory.UTILITIES)
+                             category=TransactionCategory.UTILITIES)
     test_expense_4 = Expense(user_id=test_user_id,
                              amount=3300,
                              description="Test transaction 4",
                              date="2021-01-04",
-                             category=ExpenseCategory.UTILITIES)
+                             category=TransactionCategory.UTILITIES)
     db.session.add(test_expense_1)
     db.session.add(test_expense_2)
     db.session.add(test_expense_3)
@@ -97,15 +95,15 @@ def add_test_expense(test_user_id):
 def add_test_budgets(test_user_id):
     print("Adding test budget data...")
     test_budget_1 = Budget(user_id=test_user_id,
-                           category=ExpenseCategory.RENT,
+                           category=TransactionCategory.RENT,
                            frequency=Frequency.MONTHLY,
                            amount=50000)
     test_budget_2 = Budget(user_id=test_user_id,
-                           category=ExpenseCategory.MORTGAGE,
+                           category=TransactionCategory.MORTGAGE,
                            frequency=Frequency.MONTHLY,
                            amount=30000)
     test_budget_3 = Budget(user_id=test_user_id,
-                           category=ExpenseCategory.UTILITIES,
+                           category=TransactionCategory.UTILITIES,
                            frequency=Frequency.FOUR_WEEKLY,
                            amount=20000)
     db.session.add(test_budget_1)
