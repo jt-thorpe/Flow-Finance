@@ -4,3 +4,4 @@ psycopg2-binary>=2.9.9  # PostgreSQL
 SQLAlchemy>=2.0.34
 argon2-cffi>=23.1.0
 pyjwt==2.9.0
+redis==5.1.1
