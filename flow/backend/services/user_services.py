@@ -10,6 +10,9 @@ from flow.backend.postgresql.models import User
 def get_user_with_associations(user_id: str):
     """Get a user object with associated data.
 
+    For the authenticated user_id we query all information to create an instance of a User object with associated data from related tables.
+    In this case, that is the incomes, expenses, and budgets for said User.id.
+
     Args:
         user_id, str: the UUID of the user taken from the JWT token.
 
