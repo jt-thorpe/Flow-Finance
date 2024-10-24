@@ -63,26 +63,24 @@ def login_serve() -> str:
 def login_authenticate():
     data = request.json
     user_id = authenticate(data['email'], data['password'])
+    session['user_id'] = str(user_id)
 
     if user_id:
         try:
             # Load the user object with associated data
             user = get_user_with_associations(user_id=user_id)
+            session['user_alias'] = user.alias
 
-            user_json = json.dumps(
-                serialise_user_associations(user)
-            )
+            # Serialise the user object
+            serialised_user = serialise_user_associations(user)
+            serialised_user_json = json.dumps(serialised_user)
 
-            redis_cache.set(f"user:{session['user_id']}", user_json, ex=CACHE_EXPIRATION)
+            redis_cache.set(f"user:{session['user_id']}", serialised_user_json, ex=CACHE_EXPIRATION)
         except Exception as e:
             return jsonify({'success': False, 'message': f'Unable to cache user data: {e}'}), 500
 
         # Generate the token
         token = generate_token(user_id=user.id)
-
-        # Cache user data in the session
-        session['user_id'] = str(user.id)
-        session['user_alias'] = user.alias
 
         # Set the token in a cookie
         response = make_response(jsonify({'success': True, 'redirect': url_for('dashboard_serve')}), 200)
@@ -97,9 +95,6 @@ def login_authenticate():
 def dashboard_serve() -> str:
     """Serve `dashboard.html` page."""
     cached_user_data = json.loads(redis_cache.get(f"user:{session['user_id']}"))
-    print(f"DEBUG cached_user_data = {cached_user_data}")
-    print(f"DEBUG cached_user_data['expenses'] = {cached_user_data['expenses']}")
-
     return render_template('dashboard.html',
                            user_alias=session["user_alias"],
                            transactions=cached_user_data["user_expenses"],

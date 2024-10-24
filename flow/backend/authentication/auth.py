@@ -58,8 +58,6 @@ def _add_user_account_to_db(email: str, hashed_password: str) -> None:
         print(f"SQLAlchemy error: {str(e)}")
     except Exception as e:
         print(f"An unexpected error occurred: {str(e)}")
-    finally:
-        db.session.close()
 
 
 def register_user_account(email: str, password: str) -> None:
@@ -75,7 +73,7 @@ def register_user_account(email: str, password: str) -> None:
                             hashed_password=_hash_password(password=password))
 
 
-def authenticate(email: str, password: str) -> str | None:
+def authenticate(email: str, password: str) -> uuid.UUID | None:
     """Authenticate a user.
 
     Authenticates a user by comparing the provided email and password with the stored email and password.
@@ -104,8 +102,6 @@ def authenticate(email: str, password: str) -> str | None:
     except InvalidHashError:
         print("The stored hash is invalid or corrupted.")
         return None
-    finally:
-        db.session.close()
 
 
 def generate_token(user_id: uuid.UUID) -> str:
