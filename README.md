@@ -9,18 +9,7 @@ This README is currently more a collection of notes for myself rather than anyth
 ### Image
 Build the image with:
 ```
-docker build -t flow-finance:<tag_here> .
-```
-
-### Container
-Run the container with: 
-```
-docker run -d -p 5000:5000 \
-           --name flow-dev-<tag_here> \
-           -v /home/jake/projects/Flow-Finance/:/app \
-           -e FLOW_DB_URI="flow_db_uri_here" \
-           -e JWT_SECRET_KEY="super_secret_test_key" \
-           flow-finance:<tag_here>
+docker compose up --build
 ```
 
 ## Accessing the app
