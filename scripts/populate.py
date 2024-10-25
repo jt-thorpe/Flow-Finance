@@ -1,10 +1,11 @@
 from sqlalchemy import select, text
 
-from app import app
-from extensions import db
-from flow.backend.authentication.auth import _hash_password
-from flow.backend.postgresql.enums import Frequency, TransactionCategory
-from flow.backend.postgresql.models import Budget, Expense, Income, User
+from flow.app import app
+from flow.backend.auth.services import _hash_password
+from flow.backend.transactions.enums import Frequency, TransactionCategory
+from flow.backend.transactions.models import Budget, Expense, Income
+from flow.backend.users.models import User
+from flow.extensions import db
 
 """A script to populate the database with test data."""
 
