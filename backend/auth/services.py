@@ -1,19 +1,17 @@
 import datetime
 import os
 import uuid
-from functools import wraps
-from typing import Callable, Final
+from typing import Final
 
 import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import (InvalidHashError, VerificationError,
                                VerifyMismatchError)
-from flask import redirect, request, url_for
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
+from backend.users.models import User
 from extensions import db
-from flow.backend.postgresql.models import User
 
 PH: Final[PasswordHasher] = PasswordHasher()
 
@@ -90,14 +88,14 @@ def authenticate(email: str, password: str) -> uuid.UUID | None:
         user = db.session.execute(
             select(User.id, User.password).where(User.email == email)
         ).first()
-        if user and PH.verify(user.password, password):  # If we get a match, and password was correct
+        if user and PH.verify(user.password, password):
             user_id = user[0]
             return user_id
     except VerifyMismatchError:
         print("Incorrect email or password provided.")
         return None
     except VerificationError as e:
-        print(f"Verification failed: {e}")  # Any other verification error
+        print(f"Verification failed: {e}")
         return None
     except InvalidHashError:
         print("The stored hash is invalid or corrupted.")
@@ -141,7 +139,7 @@ def verify_token(token: str) -> str | bool:
     """
     try:
         payload = jwt.decode(token, os.environ["JWT_SECRET_KEY"], algorithms=['HS256'])
-        user_id = payload['user_id']  # Extract the UUID from the token
+        user_id = payload['user_id']
         return user_id
     except jwt.ExpiredSignatureError:
         print("Token has expired!")
@@ -149,31 +147,3 @@ def verify_token(token: str) -> str | bool:
     except jwt.InvalidTokenError:
         print("Invalid token!")
         return False
-
-
-def login_required(f: Callable) -> Callable:
-    """A decorator to require a user to be logged in to access a route.
-
-    Essentially, this decorator checks if a user is logged in by checking for a JWT token in the cookies. If the token
-    is present, it is decoded to extract the user information. If the token is not present or invalid, the user is
-    redirected to the login page and the decorated function, i.e. the application route, is not executed.
-
-    Args:
-        f: the function to be decorated
-
-    Returns:
-        decorated_function: the decorated function
-    """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        token = request.cookies.get('jwt_token')  # Get JWT from cookies
-        if not token:
-            return redirect(url_for('login_serve'))
-
-        # Decode the token to extract user information
-        user_id = verify_token(token)
-        if not user_id:
-            return redirect(url_for('login_serve'))
-
-        return f(*args, **kwargs)
-    return decorated_function
