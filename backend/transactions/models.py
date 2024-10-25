@@ -5,41 +5,15 @@ from sqlalchemy import Date, Enum, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
 
+from backend.transactions.enums import Frequency, TransactionCategory
 from extensions import db
-from flow.backend.postgresql.enums import Frequency, TransactionCategory
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
-
-
-class User(db.Model):
-    """A 'User' class mapped via ORM to the 'user_account' table.
-
-    Attributes:
-        id: The UUID of the user.
-        email: The email address of the user.
-        password: The hashed password of the user.
-"""
-    __tablename__ = "user_account"
-
-    id: uuid.UUID = db.Column(UUID(as_uuid=True),
-                              primary_key=True,
-                              unique=True,
-                              server_default=text(GEN_RANDOM_UUID))
-    email: str = db.Column(db.String(100),
-                           unique=True,
-                           nullable=False)
-    password: str = db.Column(db.String(100),
-                              nullable=False)
-    alias: str = db.Column(db.String(30),
-                           nullable=False)
-
-    incomes = db.relationship("Income", back_populates="user")
-    expenses = db.relationship("Expense", back_populates="user")
-    budgets = db.relationship("Budget", back_populates="user")
+USER_ACCOUNT_ID: Final[str] = "user_account.id"
 
 
 class Income(db.Model):
-    """Models a user's finacial income.
+    """Models a user's financial incomes.
 
     Attributes:
         id: The UUID of the income.
@@ -49,6 +23,9 @@ class Income(db.Model):
         frequency: The frequency of the income.
         amount: The amount of the income.
         description: A description of the income.
+
+    Relationships:
+        user: The user to whom the income belongs.
     """
     __tablename__ = "income"
 
@@ -56,7 +33,7 @@ class Income(db.Model):
                               primary_key=True,
                               unique=True,
                               server_default=text(GEN_RANDOM_UUID))
-    user_id: uuid.UUID = db.Column(ForeignKey("user_account.id"),
+    user_id: uuid.UUID = db.Column(ForeignKey(USER_ACCOUNT_ID),
                                    nullable=False)
     category: TransactionCategory = db.Column(Enum(TransactionCategory),
                                               nullable=False)
@@ -95,6 +72,9 @@ class Expense(db.Model):
         frequency: The frequency of the expense.
         amount: The amount of the expense.
         description: A description of the expense.
+
+    Relationships:
+        user: The user to whom the expense belongs.
     """
     __tablename__ = "expense"
 
@@ -102,7 +82,7 @@ class Expense(db.Model):
                               primary_key=True,
                               unique=True,
                               server_default=text(GEN_RANDOM_UUID))
-    user_id: uuid.UUID = db.Column(ForeignKey("user_account.id"),
+    user_id: uuid.UUID = db.Column(ForeignKey(USER_ACCOUNT_ID),
                                    nullable=False)
     category: TransactionCategory = db.Column(Enum(TransactionCategory),
                                               nullable=False)
@@ -132,7 +112,7 @@ class Expense(db.Model):
 
 
 class Budget(db.Model):
-    """Models a user's budget for a given expense category.
+    """Models a user's budget for a specific category.
 
     Attributes:
         id: The UUID of the budget.
@@ -140,6 +120,9 @@ class Budget(db.Model):
         category: The category of the budget.
         frequency: The frequency of the budget.
         amount: The amount of the budget.
+
+    Relationships:
+        user: The user to whom the budget belongs.
     """
     __tablename__ = "budget"
 
@@ -147,7 +130,7 @@ class Budget(db.Model):
                               primary_key=True,
                               unique=True,
                               server_default=text(GEN_RANDOM_UUID))
-    user_id: uuid.UUID = db.Column(ForeignKey("user_account.id"),
+    user_id: uuid.UUID = db.Column(ForeignKey(USER_ACCOUNT_ID),
                                    nullable=False)
     category: TransactionCategory = db.Column(Enum(TransactionCategory),
                                               nullable=False,

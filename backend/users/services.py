@@ -1,13 +1,12 @@
-# services/user_service.py
 from typing import Dict
 
 from flask import session
 from sqlalchemy.orm import joinedload
 
-from flow.backend.postgresql.models import User
+from .models import User
 
 
-def get_user_with_associations(user_id: str):
+def get_user_with_associations(user_id: str) -> User:
     """Get a user object with associated data.
 
     For the authenticated user_id we query all information to create an instance of a User object with associated data from related tables.

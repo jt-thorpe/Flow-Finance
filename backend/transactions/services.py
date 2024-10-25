@@ -1,7 +1,7 @@
-from extensions import db
-from flow.backend.postgresql.models import Budget, Expense, Income
+from sqlalchemy import select
 
-# TODO: potential refactor to everything given change to models
+from backend.transactions.models import Budget, Expense, Income
+from extensions import db
 
 
 def get_n_transactions(user_id: str, N: int = 10) -> list:
@@ -21,7 +21,6 @@ def get_n_transactions(user_id: str, N: int = 10) -> list:
     return res
 
 
-# TODO: a VIEW is potentially better here, no built-in SQLAlchemy support however
 def get_category_totals_by(user_id: str) -> dict[str, float]:
     """Get the total amount spent for each category for a user.
 
@@ -31,6 +30,8 @@ def get_category_totals_by(user_id: str) -> dict[str, float]:
     Returns:
         dict[str, float]: a dictionary of {category: total_spent}.
     """
+    # TODO: a VIEW is potentially better here, no built-in SQLAlchemy support however
+
     category_totals = (
         db.session.query(Expense.category, db.func.sum(Expense.amount))
         .filter(Expense.user_id == user_id)
