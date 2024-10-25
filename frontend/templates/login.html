@@ -1,18 +1,16 @@
-<!-- templates/register.html -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
-    <!-- Currently POSTs using login.js as forms are essentially identical -->
-    <script src="{{ url_for('static', filename='js/register.js') }}" defer></script>
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <script src="{{ url_for('static', filename='js/login.js') }}" defer></script>
 </head>
 
 <body>
-    <form class='register-form' onsubmit="handleRegister(event)">
+    <form class='login-form' onsubmit="handleLogin(event)">
         <div class="flex-row">
             <label class="lf--label" for="email">
                 <svg x="0px" y="0px" width="12px" height="13px">
@@ -33,7 +31,7 @@
             </label>
             <input id="password" class='lf--input' placeholder='password' type='password'>
         </div>
-        <input id='register-button' class='lf--submit' type='submit' value='Register' onsubmit="handleRegister(event)">
+        <input id='login-button' class='lf--submit' type='submit' value='Login' onsubmit="handleLogin(event)">
     </form>
     <a class='lf--forgot' href='#'>Forgot password?</a>
 </body>
