@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
 
 from core.extensions import db
-from transactions.enums import TransactionCategory
+from transactions.enums import Frequency, TransactionCategory
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 USER_ACCOUNT_ID: Final[str] = "user_account.id"
@@ -39,8 +39,8 @@ class Income(db.Model):
                                               nullable=False)
     date: Date = db.Column(db.Date,
                            nullable=False)
-    frequency: int = db.Column(db.Integer,
-                               nullable=True)
+    frequency: Frequency = db.Column(Enum(Frequency),
+                                     nullable=True)
     amount: int = db.Column(db.Integer,
                             nullable=False)
     description: Optional[str] = db.Column(String(100),
@@ -49,13 +49,19 @@ class Income(db.Model):
     user = db.relationship("User", back_populates="incomes")
 
     def to_dict(self) -> dict:
-        """Convert the instance to a dictionary."""
+        """Convert the instance to a dictionary.
+
+        In the case of "category" and "frequency", the values are converted to their enum values.
+
+        Returns:
+            dict: the instance as a dictionary
+        """
         return {
             "id": str(self.id),
             "user_id": str(self.user_id),
-            "category": self.category.name,
+            "category": self.category.value,
             "date": str(self.date),
-            "frequency": self.frequency.name if self.frequency else None,
+            "frequency": self.frequency.value if self.frequency else None,
             "amount": self.amount,
             "description": self.description
         }
@@ -98,8 +104,8 @@ class Expense(db.Model):
                                               nullable=False)
     date: Date = db.Column(db.Date,
                            nullable=False)
-    frequency: int = db.Column(db.Integer,
-                               nullable=True)
+    frequency: Frequency = db.Column(Enum(Frequency),
+                                     nullable=True)
     amount: int = db.Column(db.Integer,
                             nullable=False)
 
@@ -109,13 +115,19 @@ class Expense(db.Model):
     user = db.relationship("User", back_populates="expenses")
 
     def to_dict(self) -> dict:
-        """Convert the instance to a dictionary."""
+        """Convert the instance to a dictionary.
+
+        In the case of "category" and "frequency", the values are converted to their enum values.
+
+        Returns:
+            dict: the instance as a dictionary
+        """
         return {
             "id": str(self.id),
             "user_id": str(self.user_id),
-            "category": self.category.name,
+            "category": self.category.value,
             "date": str(self.date),
-            "frequency": self.frequency.name if self.frequency else None,
+            "frequency": self.frequency.value if self.frequency else None,
             "amount": self.amount,
             "description": self.description
         }
@@ -155,20 +167,26 @@ class Budget(db.Model):
     category: TransactionCategory = db.Column(Enum(TransactionCategory),
                                               nullable=False,
                                               unique=True)
-    frequency: int = db.Column(db.Integer,
-                               nullable=False)
+    frequency: Frequency = db.Column(Enum(Frequency),
+                                     nullable=False)
     amount: int = db.Column(db.Integer,
                             nullable=False)
 
     user = db.relationship("User", back_populates="budgets")
 
     def to_dict(self) -> dict:
-        """Convert the instance to a dictionary."""
+        """Convert the instance to a dictionary.
+
+        In the case of "category" and "frequency", the values are converted to their enum values.
+
+        Returns:
+            dict: the instance as a dictionary
+        """
         return {
             "id": str(self.id),
             "user_id": str(self.user_id),
-            "category": self.category.name,
-            "frequency": self.frequency.name,
+            "category": self.category.value,
+            "frequency": self.frequency.value if self.frequency else None,
             "amount": self.amount
         }
 
