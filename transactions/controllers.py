@@ -8,8 +8,8 @@ import json
 
 from flask import Blueprint, render_template, session
 
-from backend.auth.controllers import login_required
-from extensions import redis_cache
+from auth.controllers import login_required
+from core.extensions import redis_cache
 
 from .services import create_budget_summary
 

@@ -10,8 +10,8 @@ from argon2.exceptions import (InvalidHashError, VerificationError,
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
-from backend.users.models import User
-from extensions import db
+from core.extensions import db
+from users.models import User
 
 PH: Final[PasswordHasher] = PasswordHasher()
 

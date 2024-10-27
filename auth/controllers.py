@@ -6,10 +6,10 @@ from flask import (Blueprint, jsonify, make_response, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy.exc import IntegrityError
 
-from backend.users.services import (get_user_with_associations,
-                                    serialise_user_associations)
-from extensions import CACHE_EXPIRATION  # maybe do this another way
-from extensions import redis_cache
+from core.extensions import CACHE_EXPIRATION  # maybe do this another way
+from core.extensions import redis_cache
+from users.services import (get_user_with_associations,
+                            serialise_user_associations)
 
 from .services import (authenticate, generate_token, register_user_account,
                        verify_token)

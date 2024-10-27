@@ -1,7 +1,7 @@
 from sqlalchemy import select
 
-from backend.transactions.models import Budget, Expense, Income
-from extensions import db
+from core.extensions import db
+from transactions.models import Budget, Expense, Income
 
 
 def get_n_transactions(user_id: str, N: int = 10) -> list:

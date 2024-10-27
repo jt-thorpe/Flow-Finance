@@ -1,11 +1,11 @@
 import os
 from datetime import timedelta
 
+from extensions import db
 from flask import Flask, render_template
 
-from backend.auth.controllers import auth_blueprint
-from backend.transactions.controllers import transactions_blueprint
-from extensions import db
+from auth.controllers import auth_blueprint
+from transactions.controllers import transactions_blueprint
 
 app = Flask(__name__,
             template_folder='/app/frontend/templates/',

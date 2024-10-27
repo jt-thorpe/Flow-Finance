@@ -5,7 +5,7 @@ from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
 
-from extensions import db
+from core.extensions import db
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 

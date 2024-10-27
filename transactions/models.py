@@ -5,8 +5,8 @@ from sqlalchemy import Date, Enum, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
 
-from backend.transactions.enums import Frequency, TransactionCategory
-from extensions import db
+from core.extensions import db
+from transactions.enums import Frequency, TransactionCategory
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 USER_ACCOUNT_ID: Final[str] = "user_account.id"
