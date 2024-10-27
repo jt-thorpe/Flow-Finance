@@ -1,14 +1,18 @@
 import enum
 
 
-class Frequency(enum.Enum):
+class Frequency(enum.IntEnum):
     """Represents the possible frequencies of INCOME or EXPENSE."""
-    DAILY = "daily"
-    WEEKLY = "weekly"
-    BI_WEEKLY = "bi-weekly"
-    FOUR_WEEKLY = "4-weekly"
-    MONTHLY = "monthly"
-    ANNUALLY = "annually"
+    DAILY = 0
+    WEEKLY = 1
+    BI_WEEKLY = 2
+    FOUR_WEEKLY = 3
+    MONTHLY = 4
+    ANNUALLY = 5
+
+    @property
+    def formatted_name(self):
+        return self.name.replace("_", " ").capitalize()
 
 
 class TransactionCategory(enum.IntEnum):

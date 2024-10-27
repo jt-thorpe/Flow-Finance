@@ -6,7 +6,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
 
 from core.extensions import db
-from transactions.enums import Frequency, TransactionCategory
+from transactions.enums import TransactionCategory
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 USER_ACCOUNT_ID: Final[str] = "user_account.id"
@@ -21,7 +21,7 @@ class Income(db.Model):
         category: The category of the income.
         date: The date of the income.
         frequency: The frequency of the income.
-        amount: The amount of the income.
+        amount: The amount of the income in pennies.
         description: A description of the income.
 
     Relationships:
@@ -39,8 +39,8 @@ class Income(db.Model):
                                               nullable=False)
     date: Date = db.Column(db.Date,
                            nullable=False)
-    frequency: Frequency = db.Column(Enum(Frequency),
-                                     nullable=True)
+    frequency: int = db.Column(db.Integer,
+                               nullable=True)
     amount: int = db.Column(db.Integer,
                             nullable=False)
     description: Optional[str] = db.Column(String(100),
@@ -60,6 +60,16 @@ class Income(db.Model):
             "description": self.description
         }
 
+    @property
+    def amount_in_gbp(self) -> float:
+        """Return the amount in GBP."""
+        return self.amount / 100
+
+    @amount_in_gbp.setter
+    def amount_in_gbp(self, amount: float) -> None:
+        """Set the amount in GBP."""
+        self.amount = int(amount * 100)
+
 
 class Expense(db.Model):
     """Models a user's financial expenses.
@@ -70,7 +80,7 @@ class Expense(db.Model):
         category: The category of the expense.
         date: The date of the expense.
         frequency: The frequency of the expense.
-        amount: The amount of the expense.
+        amount: The amount of the expense in pennies.
         description: A description of the expense.
 
     Relationships:
@@ -88,8 +98,8 @@ class Expense(db.Model):
                                               nullable=False)
     date: Date = db.Column(db.Date,
                            nullable=False)
-    frequency: Frequency = db.Column(Enum(Frequency),
-                                     nullable=True)
+    frequency: int = db.Column(db.Integer,
+                               nullable=True)
     amount: int = db.Column(db.Integer,
                             nullable=False)
 
@@ -110,6 +120,16 @@ class Expense(db.Model):
             "description": self.description
         }
 
+    @property
+    def amount_in_gbp(self) -> float:
+        """Return the amount in GBP."""
+        return self.amount / 100
+
+    @amount_in_gbp.setter
+    def amount_in_gbp(self, amount: float) -> None:
+        """Set the amount in GBP."""
+        self.amount = int(amount * 100)
+
 
 class Budget(db.Model):
     """Models a user's budget for a specific category.
@@ -119,7 +139,7 @@ class Budget(db.Model):
         user_id: The UUID of the user.
         category: The category of the budget.
         frequency: The frequency of the budget.
-        amount: The amount of the budget.
+        amount: The amount of the budget in pennies.
 
     Relationships:
         user: The user to whom the budget belongs.
@@ -135,8 +155,8 @@ class Budget(db.Model):
     category: TransactionCategory = db.Column(Enum(TransactionCategory),
                                               nullable=False,
                                               unique=True)
-    frequency: Frequency = db.Column(Enum(Frequency),
-                                     nullable=False)
+    frequency: int = db.Column(db.Integer,
+                               nullable=False)
     amount: int = db.Column(db.Integer,
                             nullable=False)
 
@@ -151,3 +171,13 @@ class Budget(db.Model):
             "frequency": self.frequency.name,
             "amount": self.amount
         }
+
+    @property
+    def amount_in_gbp(self) -> float:
+        """Return the amount in GBP."""
+        return self.amount / 100
+
+    @amount_in_gbp.setter
+    def amount_in_gbp(self, amount: float) -> None:
+        """Set the amount in GBP."""
+        self.amount = int(amount * 100)
