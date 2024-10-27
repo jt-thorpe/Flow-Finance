@@ -5,6 +5,7 @@ from flask import Flask, render_template
 
 from auth.controllers import auth_blueprint
 from core.extensions import db
+from dashboard.controllers import dashboard_blueprint
 from transactions.controllers import transactions_blueprint
 
 app = Flask(__name__,
@@ -27,6 +28,7 @@ with app.app_context():
 
 # Register Blueprints
 app.register_blueprint(auth_blueprint)
+app.register_blueprint(dashboard_blueprint)
 app.register_blueprint(transactions_blueprint)
 
 
