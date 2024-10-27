@@ -1,4 +1,3 @@
-import json
 from functools import wraps
 from typing import Callable
 
@@ -6,10 +5,8 @@ from flask import (Blueprint, jsonify, make_response, redirect,
                    render_template, request, session, url_for)
 from sqlalchemy.exc import IntegrityError
 
-from core.extensions import CACHE_EXPIRATION  # maybe do this another way
-from core.extensions import redis_cache
-from users.services import (get_user_with_associations,
-                            serialise_user_associations)
+from cache.services import cache_user_with_associations
+from users.services import get_user_with_associations
 
 from .services import (authenticate, generate_token, register_user_account,
                        verify_token)
@@ -61,20 +58,15 @@ def login_authenticate():
             # Load the user object with associated data
             user = get_user_with_associations(user_id=user_id)
             session['user_alias'] = user.alias
-
-            # Serialise the user object
-            serialised_user = serialise_user_associations(user)
-            serialised_user_json = json.dumps(serialised_user)
-
-            redis_cache.set(f"user:{session['user_id']}", serialised_user_json, ex=CACHE_EXPIRATION)
+            cache_user_with_associations(user)
         except Exception as e:
-            return jsonify({'success': False, 'message': f'Unable to cache user data: {e}'}), 500
+            return jsonify({'success': False, 'message': f'Cache service was unable to cache the User object: {e}'}), 500
 
         # Generate the token
         token = generate_token(user_id=user.id)
 
         # Set the token in a cookie
-        response = make_response(jsonify({'success': True, 'redirect': url_for('transactions.dashboard_serve')}), 200)
+        response = make_response(jsonify({'success': True, 'redirect': url_for('dashboard.dashboard_serve')}), 200)
         response.set_cookie('jwt_token', token, httponly=True, secure=True, samesite='Strict')
         return response
 
