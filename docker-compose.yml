@@ -1,10 +1,8 @@
-version: '1.0'
-
 services:
-  web:
+  web-app:
     build: .
     image: flow-finance-web_app:0.0.1
-    command: python app.py
+    command: python -m core.app
     volumes:
       - /home/jake/projects/Flow-Finance/:/app
     ports:

@@ -1,10 +1,10 @@
 import os
 from datetime import timedelta
 
-from extensions import db
 from flask import Flask, render_template
 
 from auth.controllers import auth_blueprint
+from core.extensions import db
 from transactions.controllers import transactions_blueprint
 
 app = Flask(__name__,
