@@ -32,7 +32,7 @@
         <!-- Transactions Header -->
         <div class="dashboard-header">
             <h1> Transactions </h1>
-            <p> View and manage your incomes and expenses here. </p>
+            <p> View and manage your income and expenses here. </p>
         </div>
 
         <!-- Transactions Section -->
@@ -42,23 +42,23 @@
                 <div class="income-view">
                     <h3> Incomes </h3>
                     <ul>
-                        <!-- { % for income in incomes % }
+                        {% for income in user_incomes %}
                         <li> {{ income["date"] }} - {{ income["amount"] }} - {{ income["category"] }} - {{
                             income["description"] }} </li>
-                        { % else % }
+                        {% else %}
                         <li> No income transactions available. </li>
-                        { % endfor % } -->
+                        {% endfor %}
                     </ul>
                 </div>
                 <div class="expense-view">
                     <h3> Expenses </h3>
                     <ul>
-                        <!-- { % for expense in expenses % }
+                        {% for expense in user_expenses %}
                         <li> {{ expense["date"]}} - {{ expense["amount"] }} - {{ expense["category"] }} - {{
                             expense["description"] }} </li>
-                        { % else % }
+                        {% else %}
                         <li> No expense transactions available. </li>
-                        { % endfor % } -->
+                        {% endfor %}
                     </ul>
                 </div>
             </div>

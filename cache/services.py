@@ -8,7 +8,7 @@ from users.services import serialise_user_associations
 CACHE_EXPIRATION: Final[int] = 60 * 30
 
 
-def retrieve_user_data(user_id: str) -> dict:
+def retrieve_user_data_json(user_id: str) -> dict:
     """Retrieve user data from the Redis cache.
 
     Deserialise the str to a JSON object and return it.

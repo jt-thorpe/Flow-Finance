@@ -7,7 +7,7 @@ E.g. we will need routes for creating/modifying budgets, and a page for viewing 
 from flask import Blueprint, render_template, session
 
 from auth.controllers import login_required
-from cache.services import retrieve_user_data
+from cache.services import retrieve_user_data_json
 from dashboard.services import create_budget_summary
 
 dashboard_blueprint = Blueprint('dashboard', __name__)
@@ -17,7 +17,7 @@ dashboard_blueprint = Blueprint('dashboard', __name__)
 @login_required
 def dashboard_serve() -> str:
     """Serve `dashboard.html` page."""
-    cached_user_data = retrieve_user_data(session["user_id"])
+    cached_user_data = retrieve_user_data_json(session["user_id"])
     return render_template('dashboard.html',
                            user_alias=session["user_alias"],
                            transactions=cached_user_data["user_expenses"],
