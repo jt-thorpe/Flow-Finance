@@ -1,74 +1,56 @@
-<!-- HTML Template for Income and Expenses Window -->
-<div class="transactions-section">
-    <h1 class="title">Transactions Overview</h1>
-    <div class="transactions-window">
-        <div class="transactions-grid">
-            {% set ns = namespace(current_date=None) %}
-            {% for transaction in user_transactions %}
-                {% if ns.current_date is none or transaction.date != ns.current_date %}
-                    {% set ns.current_date = transaction.date %}
-                    <div class="date-header" style="grid-column: span 2;">{{ ns.current_date }}</div>
-                {% endif %}
-                {% if transaction.amount >= 10000 %}
-                    <div class="transaction-item income" style="justify-self: right;">£{{ transaction.amount }} - {{ transaction.category}}</div>
-                {% else %}
-                    <div class="transaction-item expense" style="justify-self: left;">£{{ transaction.amount }} - {{ transaction.category}}</div>
-                {% endif %}
-            {% endfor %}
-        </div>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transactions | Personal Finance App</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/transactions.css') }}">
+</head>
+
+<body>
+
+    <!-- Sidebar Navbar -->
+    <nav class="navbar">
+        <div class="brand">Flow</div>
+        <ul>
+            <li><a href="#">Dashboard</a></li>
+            <li><a href="#">Transactions</a></li>
+            <li><a href="#">Settings</a></li>
+        </ul>
+    </nav>
+
+    <!-- Logout Button on Top-Right -->
+    <div class="logout">
+        <a href="#">Logout</a>
     </div>
-</div>
 
-<style>
-    .transactions-section {
-        text-align: center;
-        margin: 20px;
-    }
+    <!-- Dashboard Container -->
+    <div class="container">
 
-    .title {
-        font-size: 2em;
-        margin-bottom: 10px;
-    }
+        <!-- Transactions Overview Section -->
+        <div class="section transactions-section">
+            <h2>Transactions Overview</h2>
+            <div class="transactions-window">
+                <div class="transactions-grid">
+                    {% set ns = namespace(current_date=None) %}
+                    {% for transaction in user_transactions %}
+                        {% if ns.current_date is none or transaction.date != ns.current_date %}
+                            {% set ns.current_date = transaction.date %}
+                            <div class="date-header" style="grid-column: span 2;">{{ ns.current_date }}</div>
+                        {% endif %}
+                        {% if transaction.amount >= 10000 %}
+                            <div class="transaction-item income" style="justify-self: right;">£{{ transaction.amount }} - {{ transaction.category }}</div>
+                        {% else %}
+                            <div class="transaction-item expense" style="justify-self: left;">£{{ transaction.amount }} - {{ transaction.category }}</div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
 
-    .transactions-window {
-        display: inline-block;
-        width: 80%;
-        max-width: 800px;
-        text-align: left;
-        border: 1px solid #ccc;
-        padding: 20px;
-        background-color: #f9f9f9;
-    }
+    </div>
 
-    .transactions-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        row-gap: 10px;
-        column-gap: 20px;
-    }
+</body>
 
-    .date-header {
-        font-size: 1.5em;
-        margin-top: 20px;
-        background-color: #e0e0e0;
-        padding: 10px;
-        border-radius: 5px;
-        text-align: left;
-    }
-
-    .transaction-item {
-        padding: 10px;
-        border-radius: 5px;
-        background-color: #f0f0f0;
-    }
-
-    .income {
-        grid-column: 1;
-        text-align: right;
-    }
-
-    .expense {
-        grid-column: 2;
-        text-align: left;
-    }
-</style>
+</html>
