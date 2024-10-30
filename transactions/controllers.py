@@ -19,8 +19,9 @@ transactions_blueprint = Blueprint('transactions', __name__)
 def transactions_server() -> str:
     """Serve `dashboard.html` page."""
     cached_user_data = retrieve_user_data_json(session["user_id"])
+    user_transactions = cached_user_data["user_incomes"] + cached_user_data["user_expenses"]
+    date_sorted_transactions = sorted(user_transactions, key=lambda x: x["date"], reverse=True)
 
     return render_template('transactions.html',
                            user_alias=session["user_alias"],
-                           user_incomes=cached_user_data["user_incomes"],
-                           user_expenses=cached_user_data["user_expenses"],)
+                           user_transactions=date_sorted_transactions,)

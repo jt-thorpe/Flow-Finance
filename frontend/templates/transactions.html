@@ -1,95 +1,74 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> Transactions | Personal Finance App </title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
-</head>
-
-<body>
-    <!-- Sidebar Navbar -->
-    <nav class="navbar">
-        <div class="brand"> Flow </div>
-        <ul>
-            <li> <a href="#"> Dashboard </a>
-            </li>
-            <li> <a href="#"> Transactions </a>
-            </li>
-            <li> <a href="#"> Settings </a>
-            </li>
-        </ul>
-    </nav>
-
-    <!-- Logout Button on Top-Right -->
-    <div class="logout">
-        <a href="#"> Logout</a>
-    </div>
-
-    <!-- Transactions Container -->
-    <div class="container">
-        <!-- Transactions Header -->
-        <div class="dashboard-header">
-            <h1> Transactions </h1>
-            <p> View and manage your income and expenses here. </p>
-        </div>
-
-        <!-- Transactions Section -->
-        <div class="section">
-            <h2> All Transactions </h2>
-            <div class="transactions-view">
-                <div class="income-view">
-                    <h3> Incomes </h3>
-                    <ul>
-                        {% for income in user_incomes %}
-                        <li> {{ income["date"] }} - {{ income["amount"] }} - {{ income["category"] }} - {{
-                            income["description"] }} </li>
-                        {% else %}
-                        <li> No income transactions available. </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="expense-view">
-                    <h3> Expenses </h3>
-                    <ul>
-                        {% for expense in user_expenses %}
-                        <li> {{ expense["date"]}} - {{ expense["amount"] }} - {{ expense["category"] }} - {{
-                            expense["description"] }} </li>
-                        {% else %}
-                        <li> No expense transactions available. </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Add Transaction Section -->
-        <div class="section">
-            <h2> Add a Transaction </h2>
-            <form action="/add_transaction" method="post">
-                <label for="type"> Type:</label>
-                <select id="type" name="type">
-                    <option value="income"> Income</option>
-                    <option value="expense"> Expense</option>
-                </select>
-
-                <label for="date"> Date:</label>
-                <input type="date" id="date" name="date" required>
-
-                <label for="amount"> Amount:</label>
-                <input type="number" id="amount" name="amount" required>
-
-                <label for="category"> Category:</label>
-                <input type="text" id="category" name="category" required>
-
-                <label for="description"> Description:</label>
-                <input type="text" id="description" name="description">
-
-                <button type="submit"> Add Transaction</button>
-            </form>
+<!-- HTML Template for Income and Expenses Window -->
+<div class="transactions-section">
+    <h1 class="title">Transactions Overview</h1>
+    <div class="transactions-window">
+        <div class="transactions-grid">
+            {% set ns = namespace(current_date=None) %}
+            {% for transaction in user_transactions %}
+                {% if ns.current_date is none or transaction.date != ns.current_date %}
+                    {% set ns.current_date = transaction.date %}
+                    <div class="date-header" style="grid-column: span 2;">{{ ns.current_date }}</div>
+                {% endif %}
+                {% if transaction.amount >= 10000 %}
+                    <div class="transaction-item income" style="justify-self: right;">£{{ transaction.amount }} - {{ transaction.category}}</div>
+                {% else %}
+                    <div class="transaction-item expense" style="justify-self: left;">£{{ transaction.amount }} - {{ transaction.category}}</div>
+                {% endif %}
+            {% endfor %}
         </div>
     </div>
-</body>
+</div>
 
-</html>
+<style>
+    .transactions-section {
+        text-align: center;
+        margin: 20px;
+    }
+
+    .title {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+
+    .transactions-window {
+        display: inline-block;
+        width: 80%;
+        max-width: 800px;
+        text-align: left;
+        border: 1px solid #ccc;
+        padding: 20px;
+        background-color: #f9f9f9;
+    }
+
+    .transactions-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        row-gap: 10px;
+        column-gap: 20px;
+    }
+
+    .date-header {
+        font-size: 1.5em;
+        margin-top: 20px;
+        background-color: #e0e0e0;
+        padding: 10px;
+        border-radius: 5px;
+        text-align: left;
+    }
+
+    .transaction-item {
+        padding: 10px;
+        border-radius: 5px;
+        background-color: #f0f0f0;
+    }
+
+    .income {
+        grid-column: 1;
+        text-align: right;
+    }
+
+    .expense {
+        grid-column: 2;
+        text-align: left;
+    }
+</style>
