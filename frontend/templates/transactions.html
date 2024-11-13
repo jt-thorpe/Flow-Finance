@@ -14,8 +14,8 @@
     <nav class="navbar">
         <div class="brand">Flow</div>
         <ul>
-            <li><a href="#">Dashboard</a></li>
-            <li><a href="#">Transactions</a></li>
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/transactions">Transactions</a></li>
             <li><a href="#">Settings</a></li>
         </ul>
     </nav>
@@ -35,15 +35,17 @@
                 <div class="transactions-grid">
                     {% set ns = namespace(current_date=None) %}
                     {% for transaction in user_transactions %}
-                        {% if ns.current_date is none or transaction.date != ns.current_date %}
-                            {% set ns.current_date = transaction.date %}
-                            <div class="date-header" style="grid-column: span 2;">{{ ns.current_date }}</div>
-                        {% endif %}
-                        {% if transaction.amount >= 10000 %}
-                            <div class="transaction-item income" style="justify-self: right;">£{{ transaction.amount }} - {{ transaction.category }}</div>
-                        {% else %}
-                            <div class="transaction-item expense" style="justify-self: left;">£{{ transaction.amount }} - {{ transaction.category }}</div>
-                        {% endif %}
+                    {% if ns.current_date is none or transaction.date != ns.current_date %}
+                    {% set ns.current_date = transaction.date %}
+                    <div class="date-header" style="grid-column: span 2;">{{ ns.current_date }}</div>
+                    {% endif %}
+                    {% if transaction.amount >= 10000 %}
+                    <div class="transaction-item income" style="justify-self: right;">£{{ transaction.amount }} - {{
+                        transaction.category }}</div>
+                    {% else %}
+                    <div class="transaction-item expense" style="justify-self: left;">£{{ transaction.amount }} - {{
+                        transaction.category }}</div>
+                    {% endif %}
                     {% endfor %}
                 </div>
             </div>

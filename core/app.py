@@ -1,11 +1,12 @@
 import os
 from datetime import timedelta
 
-from flask import Flask, render_template
+from flask import Flask
 
 from auth.controllers import auth_blueprint
 from core.extensions import db
 from dashboard.controllers import dashboard_blueprint
+from home.controllers import home_blueprint
 from transactions.controllers import transactions_blueprint
 
 app = Flask(__name__,
@@ -27,14 +28,10 @@ with app.app_context():
 
 
 # Register Blueprints
+app.register_blueprint(home_blueprint)
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(dashboard_blueprint)
 app.register_blueprint(transactions_blueprint)
-
-
-@app.route('/')
-def index():
-    return render_template('index.html')
 
 
 if __name__ == '__main__':
