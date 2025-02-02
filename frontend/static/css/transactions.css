@@ -156,3 +156,74 @@ body:before {
     grid-column: 2;
     text-align: left;
 }
+
+/* Container Styling */
+.container {
+    display: flex;
+    /* Use flexbox for layout */
+    justify-content: flex-start;
+    /* Align items to the left of the container */
+    align-items: flex-start;
+    /* Align items vertically at the top */
+    gap: 20px;
+    /* Space between sections */
+    padding: 20px;
+}
+
+/* Transactions Section Styling */
+.transactions-section {
+    flex: 3;
+    /* Proportional space (larger section) */
+    max-width: 70%;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Actions Section Styling */
+.actions-sections {
+    flex: 1;
+    /* Proportional space (smaller section) */
+    max-width: 30%;
+    background-color: #fff;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    align-self: flex-start;
+    /* Ensure it aligns to the top (if needed) */
+}
+
+/* General Form Styling (reuse from previous CSS if needed) */
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    /* Space between form elements */
+}
+
+.form-container label {
+    font-weight: bold;
+}
+
+.form-container input,
+.form-container select,
+.form-container button {
+    width: 100%;
+    /* Full width inside the form */
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form-container button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.form-container button:hover {
+    background-color: #0056b3;
+}
