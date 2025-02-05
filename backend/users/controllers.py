@@ -1,6 +1,6 @@
 from auth.controllers import login_required
 from cache.services import cache_user_with_associations, get_user_cache
-from flask import Blueprint, Response, jsonify, request
+from flask import Blueprint, Response, g, jsonify
 from users.services import (get_user_with_associations,
                             serialise_user_associations)
 
@@ -11,7 +11,7 @@ users_blueprint = Blueprint('users', __name__, url_prefix='/api/users')
 @login_required
 def get_user_data() -> tuple[Response, int]:
     """Retrieve user data from cache or database."""
-    user_id = request.user_id  # Extracted from JWT, not sure this is right...
+    user_id = g.user_id  # Extracted from JWT, not sure this is right...
 
     # Check Redis cache first
     user_data = get_user_cache(user_id=user_id)
