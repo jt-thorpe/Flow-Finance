@@ -8,6 +8,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import (InvalidHashError, VerificationError,
                                VerifyMismatchError)
 from core.extensions import db
+from flask import g
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from users.models import User
@@ -70,44 +71,43 @@ def register_user_account(email: str, password: str) -> None:
                             hashed_password=_hash_password(password=password))
 
 
-def authenticate(email: str, password: str) -> uuid.UUID | None:
-    """Authenticate a user.
-
-    Authenticates a user by comparing the provided email and password with the stored email and password.
+def authenticate(email: str, password: str) -> bool:
+    """Authenticate a user by email and password, setting `g.user_id` if successful.
 
     Args:
-        email, str: the email address of the user
-        password, str: the unhashed password provided in the login attempt
+        email (str): The user's email.
+        password (str): The unhashed password provided in the login attempt.
 
     Returns:
-        User: the User object if the email and password are correct
-        None: if the email and password are incorrect
+        bool: True if authentication is successful, False otherwise.
     """
     try:
         user = db.session.execute(
             select(User.id, User.password).where(User.email == email)
         ).first()
+
         if user and PH.verify(user.password, password):
-            user_id = user[0]
-            return user_id
+            g.user_id = user[0]
+            return True
+
     except VerifyMismatchError:
         print("Incorrect email or password provided.")
-        return None
     except VerificationError as e:
         print(f"Verification failed: {e}")
-        return None
     except InvalidHashError:
         print("The stored hash is invalid or corrupted.")
-        return None
+    except SQLAlchemyError as e:
+        print(f"Database error during authentication: {e}")
+
+    return False
 
 
 def generate_token(user_id: uuid.UUID) -> tuple[str, int]:
     """Generate a JWT token and return expiry time."""
     if not os.environ.get("JWT_SECRET_KEY"):
-        print("JWT_SECRET_KEY environment variable not set.")
         raise ValueError("JWT_SECRET_KEY is missing")
 
-    expiry_time = datetime.datetime.now() + datetime.timedelta(minutes=30)
+    expiry_time = datetime.datetime.now() + datetime.timedelta(minutes=1)
 
     payload = {
         'user_id': str(user_id),
@@ -125,6 +125,9 @@ def verify_token(token: str) -> str | None:
         decoded_token = jwt.decode(token, os.environ["JWT_SECRET_KEY"], algorithms=["HS256"])
         return decoded_token.get("user_id")
     except jwt.ExpiredSignatureError:
-        return None
+        return "expired"
     except jwt.InvalidTokenError:
+        return "invalid"
+    except Exception as e:
+        print(f"Unexpected JWT error: {e}")
         return None

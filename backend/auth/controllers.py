@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Callable
 
-from flask import Blueprint, jsonify, make_response, request
+from flask import Blueprint, g, jsonify, make_response, request
 from sqlalchemy.exc import IntegrityError
 
 from .services import (authenticate, generate_token, register_user_account,
@@ -24,10 +24,13 @@ def register_user():
 @auth_blueprint.route('/login', methods=['POST'])
 def login():
     data = request.json
-    user_id = authenticate(data['email'], data['password'])
+    email, password = data.get("email"), data.get("password")
 
-    if user_id:
-        token, expiry = generate_token(user_id=user_id)
+    if not email or not password:
+        return jsonify({"success": False, "message": "Missing email or password"}), 400
+
+    if authenticate(email, password):
+        token, expiry = generate_token(user_id=g.user_id)
         response = make_response(jsonify({
             "message": "Login successful",
             "token": token,
@@ -43,19 +46,24 @@ def login():
 def login_required(f: Callable) -> Callable:
     """Decorator to protect routes by requiring a valid JWT token stored in a cookie.
 
-    If the token is verified, we expose the users UUID at request.user_id.
+    If the token is valid, it sets `g.user_id` with the user's UUID.
     """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         token = request.cookies.get("jwt")
         if not token:
-            return jsonify({'success': False, 'message': 'Missing or invalid token'}), 401
+            return jsonify({'success': False, 'message': 'Authentication required.'}), 401
 
         user_id = verify_token(token)
-        if not user_id:
-            return jsonify({'success': False, 'message': 'Invalid or expired token'}), 401
 
-        request.user_id = user_id
+        if user_id == "expired":
+            return jsonify({'success': False, 'message': 'Session expired. Please log in again.'}), 401
+        if user_id == "invalid":
+            return jsonify({'success': False, 'message': 'Invalid token. Authentication failed.'}), 401
+        if not user_id:
+            return jsonify({'success': False, 'message': 'Authentication required.'}), 401
+
+        g.user_id = user_id
         return f(*args, **kwargs)
 
     return decorated_function
