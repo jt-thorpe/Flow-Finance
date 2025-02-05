@@ -39,6 +39,11 @@ const Dashboard = () => {
                 credentials: "include", // Send cookie (JWT)
             });
 
+            if (response.status === 401) {
+                window.location.href = '/login'; // Redirect on 401
+                return;
+            }
+
             if (response.ok) {
                 const data = await response.json();
                 setUserAlias(data.user_alias)
@@ -82,15 +87,15 @@ const Dashboard = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="bg-white p-4 rounded shadow">
                         <h2 className="text-lg font-semibold">Total Income</h2>
-                        <p className="text-green-500 text-xl">£{(userIncomesTotal ?? 0) / 100}</p>
+                        <p className="text-green-500 text-xl">£{(userIncomesTotal ?? 0)}</p>
                     </div>
                     <div className="bg-white p-4 rounded shadow">
                         <h2 className="text-lg font-semibold">Total Expenses</h2>
-                        <p className="text-red-500 text-xl">£{(userExpensesTotal ?? 0) / 100}</p>
+                        <p className="text-red-500 text-xl">£{(userExpensesTotal ?? 0)}</p>
                     </div>
                     <div className="bg-white p-4 rounded shadow">
                         <h2 className="text-lg font-semibold">Total Balance</h2>
-                        <p className="text-blue-500 text-xl">£{((userIncomesTotal ?? 0) - (userExpensesTotal ?? 0)) / 100}</p>
+                        <p className="text-blue-500 text-xl">£{(userIncomesTotal ?? 0) - (userExpensesTotal ?? 0)}</p>
                     </div>
                 </div>
 

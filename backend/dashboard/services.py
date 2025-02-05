@@ -1,4 +1,6 @@
-from cache.services import get_user_cache_field
+from datetime import datetime
+from typing import Dict
+
 from transactions.services import get_budgets_by, get_category_totals_by
 
 
@@ -25,16 +27,22 @@ def create_budget_summary(user_id: str) -> list[dict]:
     ]
 
 
-def calculate_user_field_total(user_id: str, field: str) -> int | None:
-    """Return the total of the users incomes or None if no data."""
-    # TODO: For now we forget about frequencies... need to think about how thisll be handled though
-    user_field_data = get_user_cache_field(user_id=user_id, field=field)
+def compute_dashboard(user_data: Dict) -> Dict:
+    """Compute and return the required data for displaying on the /dashboard page in a JSON serialisable format."""
+    combined_transactions = [
+        {**item, "type": "income"} for item in user_data['incomes']
+    ] + [
+        {**item, "type": "expense"} for item in user_data['expenses']
+    ]
+    combined_transactions.sort(key=lambda x: datetime.strptime(x["date"], "%Y-%m-%d"), reverse=True)
+    incomes_total = sum(income["amount"] for income in user_data["incomes"])
+    expenses_total = sum(expense["amount"] for expense in user_data["expenses"])
+    budget_summary = create_budget_summary(user_data["meta"]["id"])
 
-    if user_field_data:
-        total = 0
-        for item in user_field_data:
-            total += item.amount
-
-        return total
-
-    return None
+    return {
+        "user_alias": user_data["meta"]["alias"],
+        "user_latest_transactions": combined_transactions[:10],  # Latest 10
+        "user_incomes_total": incomes_total,
+        "user_expenses_total": expenses_total,
+        "user_budget_summary": budget_summary,
+    }
