@@ -1,5 +1,7 @@
+name: flow-finance-backend
+
 services:
-  web-app:
+  backend:
     build: .
     image: flow-finance-web_app:0.0.1
     command: python -m core.app
