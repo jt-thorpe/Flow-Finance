@@ -1,6 +1,5 @@
-from sqlalchemy import select
-
 from core.extensions import db
+from sqlalchemy import select
 from transactions.models import Budget, Expense, Income
 
 
@@ -33,7 +32,8 @@ def get_category_totals_by(user_id: str) -> dict[str, float]:
     # TODO: a VIEW is potentially better here, no built-in SQLAlchemy support however
 
     category_totals = (
-        db.session.query(Expense.category, db.func.sum(Expense.amount))
+        db.session.query(Expense.category, db.func.sum(Expense.amount).cast(
+            db.Float))  # Not entirely sure why need to cast back to float
         .filter(Expense.user_id == user_id)
         .group_by(Expense.category)
         .all()
