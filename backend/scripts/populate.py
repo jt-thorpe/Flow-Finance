@@ -57,13 +57,13 @@ def add_test_income(test_user_id):
                            category=TransactionCategory.SALARY,
                            date="2021-01-01",
                            frequency=Frequency.MONTHLY,
-                           amount=200000,
+                           amount=2000,
                            description="An example of some income")
     test_income_2 = Income(user_id=test_user_id,
                            category=TransactionCategory.INTEREST,
                            date="2021-01-01",
                            frequency=Frequency.ANNUALLY,
-                           amount=10000,
+                           amount=100,
                            description="An example of some interest")
     db.session.add(test_income_1)
     db.session.add(test_income_2)
@@ -74,22 +74,22 @@ def add_test_income(test_user_id):
 def add_test_expense(test_user_id):
     print("Adding test expense data...")
     test_expense_1 = Expense(user_id=test_user_id,
-                             amount=10000,
+                             amount=100,
                              description="Test transaction 1",
                              date="2021-01-01",
                              category=TransactionCategory.RENT)
     test_expense_2 = Expense(user_id=test_user_id,
-                             amount=5000,
+                             amount=50,
                              description="Test transaction 2",
                              date="2021-01-02",
                              category=TransactionCategory.MORTGAGE)
     test_expense_3 = Expense(user_id=test_user_id,
-                             amount=7500,
+                             amount=75.25,
                              description="Test transaction 3",
                              date="2021-01-03",
                              category=TransactionCategory.UTILITIES)
     test_expense_4 = Expense(user_id=test_user_id,
-                             amount=3300,
+                             amount=33,
                              description="Test transaction 4",
                              date="2021-01-04",
                              category=TransactionCategory.UTILITIES)
@@ -106,15 +106,15 @@ def add_test_budgets(test_user_id):
     test_budget_1 = Budget(user_id=test_user_id,
                            category=TransactionCategory.RENT,
                            frequency=Frequency.MONTHLY,
-                           amount=50000)
+                           amount=500.50)
     test_budget_2 = Budget(user_id=test_user_id,
                            category=TransactionCategory.MORTGAGE,
                            frequency=Frequency.MONTHLY,
-                           amount=30000)
+                           amount=300.33)
     test_budget_3 = Budget(user_id=test_user_id,
                            category=TransactionCategory.UTILITIES,
                            frequency=Frequency.FOUR_WEEKLY,
-                           amount=20000)
+                           amount=200)
     db.session.add(test_budget_1)
     db.session.add(test_budget_2)
     db.session.add(test_budget_3)

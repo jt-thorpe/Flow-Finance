@@ -1,11 +1,11 @@
 import uuid
 from typing import Final, Optional
 
+from core.extensions import db
 from sqlalchemy import Date, Enum, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import text
-
-from core.extensions import db
 from transactions.enums import Frequency, TransactionCategory
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
@@ -41,8 +41,9 @@ class Income(db.Model):
                            nullable=False)
     frequency: Frequency = db.Column(Enum(Frequency),
                                      nullable=True)
-    amount: int = db.Column(db.Integer,
-                            nullable=False)
+    _amount: int = db.Column("amount",
+                             db.Integer,
+                             nullable=False)
     description: Optional[str] = db.Column(String(100),
                                            nullable=True)
 
@@ -66,15 +67,15 @@ class Income(db.Model):
             "description": self.description
         }
 
-    @property
-    def amount_in_gbp(self) -> float:
-        """Return the amount in GBP."""
-        return self.amount / 100
+    @hybrid_property
+    def amount(self) -> float:
+        """Returns amount in pounds."""
+        return self._amount / 100
 
-    @amount_in_gbp.setter
-    def amount_in_gbp(self, amount: float) -> None:
-        """Set the amount in GBP."""
-        self.amount = int(amount * 100)
+    @amount.setter
+    def amount(self, value: float):
+        """Stores amount as pence."""
+        self._amount = int(round(value * 100))
 
 
 class Expense(db.Model):
@@ -106,8 +107,9 @@ class Expense(db.Model):
                            nullable=False)
     frequency: Frequency = db.Column(Enum(Frequency),
                                      nullable=True)
-    amount: int = db.Column(db.Integer,
-                            nullable=False)
+    _amount: int = db.Column("amount",
+                             db.Integer,
+                             nullable=False)
 
     description: Optional[str] = db.Column(String(100),
                                            nullable=True)
@@ -132,15 +134,15 @@ class Expense(db.Model):
             "description": self.description
         }
 
-    @property
-    def amount_in_gbp(self) -> float:
-        """Return the amount in GBP."""
-        return self.amount / 100
+    @hybrid_property
+    def amount(self) -> float:
+        """Returns amount in pounds."""
+        return self._amount / 100
 
-    @amount_in_gbp.setter
-    def amount_in_gbp(self, amount: float) -> None:
-        """Set the amount in GBP."""
-        self.amount = int(amount * 100)
+    @amount.setter
+    def amount(self, value: float):
+        """Stores amount as pence."""
+        self._amount = int(round(value * 100))
 
 
 class Budget(db.Model):
@@ -169,8 +171,9 @@ class Budget(db.Model):
                                               unique=True)
     frequency: Frequency = db.Column(Enum(Frequency),
                                      nullable=False)
-    amount: int = db.Column(db.Integer,
-                            nullable=False)
+    _amount: int = db.Column("amount",
+                             db.Integer,
+                             nullable=False)
 
     user = db.relationship("User", back_populates="budgets")
 
@@ -190,12 +193,12 @@ class Budget(db.Model):
             "amount": self.amount
         }
 
-    @property
-    def amount_in_gbp(self) -> float:
-        """Return the amount in GBP."""
-        return self.amount / 100
+    @hybrid_property
+    def amount(self) -> float:
+        """Returns amount in pounds."""
+        return self._amount / 100
 
-    @amount_in_gbp.setter
-    def amount_in_gbp(self, amount: float) -> None:
-        """Set the amount in GBP."""
-        self.amount = int(amount * 100)
+    @amount.setter
+    def amount(self, value: float):
+        """Stores amount as pence."""
+        self._amount = int(round(value * 100))
