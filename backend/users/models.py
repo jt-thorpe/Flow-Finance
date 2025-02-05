@@ -1,5 +1,5 @@
 import uuid
-from typing import Final
+from typing import Dict, Final
 
 from core.extensions import db
 from sqlalchemy import text
@@ -40,3 +40,12 @@ class User(db.Model):
     incomes = db.relationship("Income", back_populates="user")
     expenses = db.relationship("Expense", back_populates="user")
     budgets = db.relationship("Budget", back_populates="user")
+
+    def to_dict(self) -> Dict:
+        """Returns the User object and it's related data in a JSON serialisable format."""
+        return {
+            "meta": {"id": str(self.id), "alias": self.alias},
+            "incomes": [income.to_dict() for income in self.incomes],
+            "expenses": [expense.to_dict() for expense in self.expenses],
+            "budgets": [budget.to_dict() for budget in self.budgets],
+        }
