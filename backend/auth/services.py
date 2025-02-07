@@ -10,20 +10,18 @@ from argon2.exceptions import (InvalidHashError, VerificationError,
 from core.extensions import db
 from flask import g
 from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError
 from users.models import User
 
 PH: Final[PasswordHasher] = PasswordHasher()
 
 
-def _hash_password(password: str) -> str:
+def hash_password(password: str) -> str:
     """A "wrapper" function for argon2.PasswordHasher.hash().
 
     Currently don't know why I'm bothering to have this in it's own function. I think the idea was
     to have it in it's own wrapper so that additional logic can be used in the hash process.
     This isn't currently the case however.
-
-    #TODO Remove probably?
 
     Args:
         password, str: the password to be hashed
@@ -32,43 +30,6 @@ def _hash_password(password: str) -> str:
         str, the hashed password
     """
     return PH.hash(password)
-
-
-def _add_user_account_to_db(email: str, hashed_password: str) -> None:
-    """Add a user account to the database.
-
-    Args:
-        email, str: the email address of the user
-        hashed_password, str: the hashed password of the user
-
-    Raises:
-        IntegrityError: if the email is already in use
-        SQLAlchemyError: if an unexpected error occurs
-    """
-    try:
-        user = User(email=email, password=hashed_password)
-        db.session.add(user)
-        db.session.commit()
-    except IntegrityError as e:
-        print(f"Integrity error: {str(e)}")
-        raise
-    except SQLAlchemyError as e:
-        print(f"SQLAlchemy error: {str(e)}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {str(e)}")
-
-
-def register_user_account(email: str, password: str) -> None:
-    """Register a user account.
-
-    Represents the user registration process. The password is hashed and stored in the database.
-
-    Args:
-        email, str: the email address of the user
-        password, str: the password of the user
-    """
-    _add_user_account_to_db(email=email,
-                            hashed_password=_hash_password(password=password))
 
 
 def authenticate(email: str, password: str) -> bool:
@@ -107,7 +68,7 @@ def generate_token(user_id: uuid.UUID) -> tuple[str, int]:
     if not os.environ.get("JWT_SECRET_KEY"):
         raise ValueError("JWT_SECRET_KEY is missing")
 
-    expiry_time = datetime.datetime.now() + datetime.timedelta(minutes=1)
+    expiry_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
 
     payload = {
         'user_id': str(user_id),

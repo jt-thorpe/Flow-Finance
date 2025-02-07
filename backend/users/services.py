@@ -1,8 +1,42 @@
 from typing import Dict
 
+from core.extensions import db
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
 from .models import User
+
+
+def is_taken(email: str) -> bool:
+    """True if email is in use by another user."""
+    result = db.session.query(User.email).filter(User.email == email).scalar()
+    print(f"{__name__} - result = {result}")
+
+    return result is not None
+
+
+def add_user_account_to_db(email: str, hashed_password: str, alias: str) -> None:
+    """Add a user account to the database.
+
+    Args:
+        email, str: the email address of the user
+        hashed_password, str: the hashed password of the user
+
+    Raises:
+        IntegrityError: if the email is already in use
+        SQLAlchemyError: if an unexpected error occurs
+    """
+    try:
+        user = User(email=email, password=hashed_password, alias=alias)
+        db.session.add(user)
+        db.session.commit()
+    except IntegrityError as e:
+        print(f"Integrity error: {str(e)}")
+        raise
+    except SQLAlchemyError as e:
+        print(f"SQLAlchemy error: {str(e)}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {str(e)}")
 
 
 def get_user_with_associations(user_id: str) -> User:

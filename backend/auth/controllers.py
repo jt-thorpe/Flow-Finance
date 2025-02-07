@@ -2,23 +2,10 @@ from functools import wraps
 from typing import Callable
 
 from flask import Blueprint, g, jsonify, make_response, request
-from sqlalchemy.exc import IntegrityError
 
-from .services import (authenticate, generate_token, register_user_account,
-                       verify_token)
+from .services import authenticate, generate_token, verify_token
 
 auth_blueprint = Blueprint('auth', __name__, url_prefix='/api/auth')
-
-
-@auth_blueprint.route('/register', methods=['POST'])
-def register_user():
-    """Register a new user account."""
-    data = request.json
-    try:
-        register_user_account(data['email'], data['password'])
-        return jsonify({'success': True, 'message': 'User registered successfully'}), 201
-    except IntegrityError:
-        return jsonify({'success': False, 'message': 'Email already in use'}), 400
 
 
 @auth_blueprint.route('/login', methods=['POST'])

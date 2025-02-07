@@ -1,7 +1,7 @@
 import os
 from datetime import timedelta
 
-from auth.services import _hash_password
+from auth.services import hash_password
 from core.app import app
 from core.extensions import db
 from sqlalchemy import select, text
@@ -36,7 +36,7 @@ def reset_database():
 def add_test_user():
     """Adds a test user to the database."""
     print("Adding test user...")
-    h_password = _hash_password("password")
+    h_password = hash_password("password")
     test_user = User(email="example@mail.com", password=h_password, alias="Captain Test")
     db.session.add(test_user)
     db.session.commit()
