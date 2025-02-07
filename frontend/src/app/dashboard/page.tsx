@@ -62,7 +62,7 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100">
+        <div className="min-h-screen bg-white">
             {/* Navbar */}
             <nav className="bg-blue-600 p-4 flex justify-between items-center text-white">
                 <div className="text-lg font-bold">Flow</div>
@@ -101,6 +101,39 @@ const Dashboard = () => {
                     </div>
                 </div>
 
+                {/* Budget Categories */}
+                <div className="mt-6">
+                    <h2 className="text-xl font-bold">Budget Categories</h2>
+                    <div className="overflow-x-auto bg-white p-4 rounded shadow mt-2">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="bg-gray-200">
+                                    <th className="p-2">Category</th>
+                                    <th className="p-2">Budget</th>
+                                    <th className="p-2">Spent</th>
+                                    <th className="p-2">Remaining</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {userBudgetSummary.length > 0 ? (
+                                    userBudgetSummary.map((budget, index) => (
+                                        <tr key={index} className="border-t">
+                                            <td className="p-2">{budget.category}</td>
+                                            <td className="p-2">£{budget.amount.toFixed(2)}</td>
+                                            <td className="p-2">£{budget.spent.toFixed(2)}</td>
+                                            <td className="p-2">£{budget.remaining.toFixed(2)}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td colSpan={4} className="p-2 text-center text-gray-500">No budget information available.</td>
+                                    </tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 {/* Recent Transactions */}
                 <div className="mt-6">
                     <h2 className="text-xl font-bold">Recent Transactions</h2>
@@ -131,39 +164,6 @@ const Dashboard = () => {
                                         <td colSpan={4} className="p-2 text-center text-gray-500">
                                             No recent transactions available.
                                         </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Budget Categories */}
-                <div className="mt-6">
-                    <h2 className="text-xl font-bold">Budget Categories</h2>
-                    <div className="overflow-x-auto bg-white p-4 rounded shadow mt-2">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="bg-gray-200">
-                                    <th className="p-2">Category</th>
-                                    <th className="p-2">Budget</th>
-                                    <th className="p-2">Spent</th>
-                                    <th className="p-2">Remaining</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {userBudgetSummary.length > 0 ? (
-                                    userBudgetSummary.map((budget, index) => (
-                                        <tr key={index} className="border-t">
-                                            <td className="p-2">{budget.category}</td>
-                                            <td className="p-2">£{budget.amount.toFixed(2)}</td>
-                                            <td className="p-2">£{budget.spent.toFixed(2)}</td>
-                                            <td className="p-2">£{budget.remaining.toFixed(2)}</td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={4} className="p-2 text-center text-gray-500">No budget information available.</td>
                                     </tr>
                                 )}
                             </tbody>

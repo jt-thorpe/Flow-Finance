@@ -9,8 +9,6 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    /* Do not currently have a way to check if the user has already logged in within token expiry time */
-
     const decodeToken = (token: string) => {
         try {
             const base64Url = token.split('.')[1]; // Extract payload
@@ -58,8 +56,8 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex h-screen items-center justify-center bg-gradient-to-r from-gray-800 to-gray-600">
-            <form className="bg-white p-8 rounded-lg shadow-lg" onSubmit={handleLogin}>
+        <div className="flex h-screen items-center justify-center bg-white">
+            <form className="bg-grey-300 p-8 rounded-lg shadow-lg" onSubmit={handleLogin}>
                 <h2 className="text-2xl mb-4">Login</h2>
                 {error && <p className="text-red-500">{error}</p>}
                 <input
