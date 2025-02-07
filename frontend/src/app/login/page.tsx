@@ -56,26 +56,32 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="flex h-screen items-center justify-center bg-white">
-            <form className="bg-grey-300 p-8 rounded-lg shadow-lg" onSubmit={handleLogin}>
-                <h2 className="text-2xl mb-4">Login</h2>
-                {error && <p className="text-red-500">{error}</p>}
-                <input
-                    type="email"
-                    className="block w-full p-2 border rounded mb-2"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
-                <input
-                    type="password"
-                    className="block w-full p-2 border rounded mb-2"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
-                <button className="w-full bg-blue-500 text-white p-2 rounded" type="submit">Login</button>
-            </form>
-        </div>
+        <main className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-gray-100">
+            <section className="bg-white shadow-md rounded-2xl p-8 max-w-md w-full">
+                <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">Login</h1>
+                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
+                <form className="space-y-4" onSubmit={handleLogin}>
+                    {/* Email input */}
+                    <input
+                        type="email"
+                        className="border p-3 rounded w-full"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                    {/* Password input */}
+                    <input
+                        type="password"
+                        className="border p-3 rounded w-full"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                    <button className="bg-green-400 text-white p-3 rounded w-full hover:bg-green-500 transition" type="submit">
+                        Login
+                    </button>
+                </form>
+            </section>
+        </main>
     );
 }

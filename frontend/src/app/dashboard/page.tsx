@@ -11,7 +11,6 @@ interface Transaction {
     type: "income" | "expense";
 }
 
-
 interface BudgetItem {
     category: string;
     amount: number;
@@ -28,7 +27,6 @@ const Dashboard = () => {
     const [userExpensesTotal, setUserExpensesTotal] = useState<number | null>(null);
     const [userBudgetSummary, setUserBudgetSummary] = useState<BudgetItem[]>([]);
 
-
     useEffect(() => {
         fetchUserData();
     }, []);
@@ -38,21 +36,21 @@ const Dashboard = () => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard/load`, {
                 method: "GET",
                 headers: { "Content-Type": "application/json" },
-                credentials: "include", // Send cookie (JWT)
+                credentials: "include",
             });
 
             if (response.status === 401) {
-                window.location.href = '/login'; // Redirect on 401
+                window.location.href = '/login';
                 return;
             }
 
             if (response.ok) {
                 const data = await response.json();
-                setUserAlias(data.user_alias)
-                setUserTransactions(data.user_latest_transactions)
-                setUserIncomesTotal(data.user_incomes_total)
-                setUserExpensesTotal(data.user_expenses_total)
-                setUserBudgetSummary(data.user_budget_summary)
+                setUserAlias(data.user_alias);
+                setUserTransactions(data.user_latest_transactions);
+                setUserIncomesTotal(data.user_incomes_total);
+                setUserExpensesTotal(data.user_expenses_total);
+                setUserBudgetSummary(data.user_budget_summary);
             } else {
                 setError('Failed to load user data.');
             }
@@ -62,117 +60,67 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white">
-            {/* Navbar */}
-            <nav className="bg-blue-600 p-4 flex justify-between items-center text-white">
-                <div className="text-lg font-bold">Flow</div>
-                <ul className="flex space-x-4">
-                    <li><a href="/dashboard" className="hover:underline">Dashboard</a></li>
-                    <li><a href="/budgets" className="hover:underline">Budgets</a></li>
-                    <li><a href="/transactions" className="hover:underline">Transactions</a></li>
-                    <li><a href="/settings" className="hover:underline">Settings</a></li>
-                </ul>
-                <button className="bg-red-500 px-3 py-1 rounded" onClick={() => router.push("/logout")}>
-                    Logout
-                </button>
-            </nav>
-
-            {/* Dashboard Content */}
-            <div className="p-6">
-                {/* Header */}
-                <div className="mb-6">
-                    <h1 className="text-2xl font-bold">Welcome back, {userAlias}!</h1>
-                    <p className="text-gray-600">Your financial overview at a glance.</p>
+        <main className="flex flex-col items-center min-h-screen px-4 py-8 bg-gray-100">
+            <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl">
+                <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">Welcome back, {userAlias}!</h1>
+                <p className="text-center text-gray-600 mb-4">Your financial overview at a glance.</p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <OverviewCard title="Total Income" amount={userIncomesTotal} color="text-green-500" />
+                    <OverviewCard title="Total Expenses" amount={userExpensesTotal} color="text-red-500" />
+                    <OverviewCard title="Total Balance" amount={(userIncomesTotal ?? 0) - (userExpensesTotal ?? 0)} color="text-blue-500" />
                 </div>
+            </section>
 
-                {/* Overview Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-white p-4 rounded shadow">
-                        <h2 className="text-lg font-semibold">Total Income</h2>
-                        <p className="text-green-500 text-xl">£{(userIncomesTotal ?? 0)}</p>
-                    </div>
-                    <div className="bg-white p-4 rounded shadow">
-                        <h2 className="text-lg font-semibold">Total Expenses</h2>
-                        <p className="text-red-500 text-xl">£{(userExpensesTotal ?? 0)}</p>
-                    </div>
-                    <div className="bg-white p-4 rounded shadow">
-                        <h2 className="text-lg font-semibold">Total Balance</h2>
-                        <p className="text-blue-500 text-xl">£{(userIncomesTotal ?? 0) - (userExpensesTotal ?? 0)}</p>
-                    </div>
-                </div>
+            {/* Budget Summary */}
+            <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
+                <h2 className="text-xl font-bold mb-4">Budget Summary</h2>
+                <Table headers={["Category", "Budget", "Spent", "Remaining"]} data={userBudgetSummary.map(budget => [budget.category, `£${budget.amount.toFixed(2)}`, `£${budget.spent.toFixed(2)}`, `£${budget.remaining.toFixed(2)}`])} />
+            </section>
 
-                {/* Budget Categories */}
-                <div className="mt-6">
-                    <h2 className="text-xl font-bold">Budget Categories</h2>
-                    <div className="overflow-x-auto bg-white p-4 rounded shadow mt-2">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="bg-gray-200">
-                                    <th className="p-2">Category</th>
-                                    <th className="p-2">Budget</th>
-                                    <th className="p-2">Spent</th>
-                                    <th className="p-2">Remaining</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {userBudgetSummary.length > 0 ? (
-                                    userBudgetSummary.map((budget, index) => (
-                                        <tr key={index} className="border-t">
-                                            <td className="p-2">{budget.category}</td>
-                                            <td className="p-2">£{budget.amount.toFixed(2)}</td>
-                                            <td className="p-2">£{budget.spent.toFixed(2)}</td>
-                                            <td className="p-2">£{budget.remaining.toFixed(2)}</td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={4} className="p-2 text-center text-gray-500">No budget information available.</td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                {/* Recent Transactions */}
-                <div className="mt-6">
-                    <h2 className="text-xl font-bold">Recent Transactions</h2>
-                    <div className="overflow-x-auto bg-white p-4 rounded shadow mt-2">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="bg-gray-200">
-                                    <th className="p-2">Date</th>
-                                    <th className="p-2">Amount</th>
-                                    <th className="p-2">Category</th>
-                                    <th className="p-2">Description</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {userTransactions.length > 0 ? (
-                                    userTransactions.map((transaction, index) => (
-                                        <tr key={index} className="border-t">
-                                            <td className="p-2">{transaction.date}</td>
-                                            <td className={`p-2 ${transaction.type === "income" ? "text-green-500" : "text-red-500"}`}>
-                                                £{transaction.amount.toFixed(2)}
-                                            </td>
-                                            <td className="p-2">{transaction.category}</td>
-                                            <td className="p-2">{transaction.description}</td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={4} className="p-2 text-center text-gray-500">
-                                            No recent transactions available.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+            {/* Recent Transactions */}
+            <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
+                <h2 className="text-xl font-bold mb-4">Recent Transactions</h2>
+                <Table headers={["Date", "Amount", "Category", "Description"]} data={userTransactions.map(transaction => [
+                    transaction.date,
+                    <span key={transaction.date} className={transaction.type === "income" ? "text-green-500" : "text-red-500"}>£{transaction.amount.toFixed(2)}</span>,
+                    transaction.category,
+                    transaction.description
+                ])} />
+            </section>
+        </main>
     );
 };
+
+const OverviewCard = ({ title, amount, color }: { title: string; amount: number | null; color: string }) => (
+    <div className="bg-white p-6 rounded-2xl shadow-md text-center">
+        <h2 className="text-lg font-semibold">{title}</h2>
+        <p className={`text-xl font-bold ${color}`}>£{(amount ?? 0).toFixed(2)}</p>
+    </div>
+);
+
+const Table = ({ headers, data }: { headers: string[], data: any[][] }) => (
+    <div className="overflow-x-auto">
+        <table className="w-full border-collapse text-left">
+            <thead>
+                <tr className="bg-gray-200">
+                    {headers.map((header, index) => <th key={index} className="p-3 font-semibold">{header}</th>)}
+                </tr>
+            </thead>
+            <tbody>
+                {data.length > 0 ? (
+                    data.map((row, rowIndex) => (
+                        <tr key={rowIndex} className="border-t">
+                            {row.map((cell, cellIndex) => <td key={cellIndex} className="p-3">{cell}</td>)}
+                        </tr>
+                    ))
+                ) : (
+                    <tr>
+                        <td colSpan={headers.length} className="p-3 text-center text-gray-500">No data available.</td>
+                    </tr>
+                )}
+            </tbody>
+        </table>
+    </div>
+);
 
 export default Dashboard;
