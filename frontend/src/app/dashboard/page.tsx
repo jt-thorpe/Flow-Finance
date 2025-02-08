@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
+import Navbar from '../components/NavBar';
 
 interface Transaction {
     category: string;
@@ -60,33 +61,44 @@ const Dashboard = () => {
     };
 
     return (
-        <main className="flex flex-col items-center min-h-screen px-4 py-8 bg-gray-100">
-            <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl">
-                <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">Welcome back, {userAlias}!</h1>
-                <p className="text-center text-gray-600 mb-4">Your financial overview at a glance.</p>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <OverviewCard title="Total Income" amount={userIncomesTotal} color="text-green-500" />
-                    <OverviewCard title="Total Expenses" amount={userExpensesTotal} color="text-red-500" />
-                    <OverviewCard title="Total Balance" amount={(userIncomesTotal ?? 0) - (userExpensesTotal ?? 0)} color="text-blue-500" />
+        <main className="flex flex-col items-center min-v-screen px-4 py-8 bg-gray-100">
+            <div className="flex min-h-screen bg-gray-100">
+                {/* === Navbar Area === */}
+                <div className="w-64 h-screen fixed left-0 top-0 bg-white shadow-md">
+                    <Navbar />
                 </div>
-            </section>
 
-            {/* Budget Summary */}
-            <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
-                <h2 className="text-xl font-bold mb-4">Budget Summary</h2>
-                <Table headers={["Category", "Budget", "Spent", "Remaining"]} data={userBudgetSummary.map(budget => [budget.category, `£${budget.amount.toFixed(2)}`, `£${budget.spent.toFixed(2)}`, `£${budget.remaining.toFixed(2)}`])} />
-            </section>
+                {/* === Main Content Area === */}
+                <div className='flex-1 p-6'>
+                    {/* Dashboard Overview */}
+                    <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl">
+                        <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">Welcome back, {userAlias}!</h1>
+                        <p className="text-center text-gray-600 mb-4">Your financial overview at a glance.</p>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <OverviewCard title="Total Income" amount={userIncomesTotal} color="text-green-500" />
+                            <OverviewCard title="Total Expenses" amount={userExpensesTotal} color="text-red-500" />
+                            <OverviewCard title="Total Balance" amount={(userIncomesTotal ?? 0) - (userExpensesTotal ?? 0)} color="text-blue-500" />
+                        </div>
+                    </section>
 
-            {/* Recent Transactions */}
-            <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
-                <h2 className="text-xl font-bold mb-4">Recent Transactions</h2>
-                <Table headers={["Date", "Amount", "Category", "Description"]} data={userTransactions.map(transaction => [
-                    transaction.date,
-                    <span key={transaction.date} className={transaction.type === "income" ? "text-green-500" : "text-red-500"}>£{transaction.amount.toFixed(2)}</span>,
-                    transaction.category,
-                    transaction.description
-                ])} />
-            </section>
+                    {/* Budget Summary */}
+                    <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
+                        <h2 className="text-xl font-bold mb-4">Budget Summary</h2>
+                        <Table headers={["Category", "Budget", "Spent", "Remaining"]} data={userBudgetSummary.map(budget => [budget.category, `£${budget.amount.toFixed(2)}`, `£${budget.spent.toFixed(2)}`, `£${budget.remaining.toFixed(2)}`])} />
+                    </section>
+
+                    {/* Recent Transactions */}
+                    <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
+                        <h2 className="text-xl font-bold mb-4">Recent Transactions</h2>
+                        <Table headers={["Date", "Amount", "Category", "Description"]} data={userTransactions.map(transaction => [
+                            transaction.date,
+                            <span key={transaction.date} className={transaction.type === "income" ? "text-green-500" : "text-red-500"}>£{transaction.amount.toFixed(2)}</span>,
+                            transaction.category,
+                            transaction.description
+                        ])} />
+                    </section>
+                </div>
+            </div>
         </main>
     );
 };
