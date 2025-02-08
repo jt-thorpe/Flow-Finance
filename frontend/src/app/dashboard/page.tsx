@@ -27,6 +27,18 @@ const Dashboard = () => {
     const [userIncomesTotal, setUserIncomesTotal] = useState<number | null>(null);
     const [userExpensesTotal, setUserExpensesTotal] = useState<number | null>(null);
     const [userBudgetSummary, setUserBudgetSummary] = useState<BudgetItem[]>([]);
+    const [isMobile, setIsMobile] = useState(false);
+    const [isNavOpen, setIsNavOpen] = useState(false);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setIsMobile(window.innerWidth < 768);
+            if (window.innerWidth >= 768) setIsNavOpen(false); // Ensure nav closes when resizing back to desktop
+        };
+        handleResize();
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     useEffect(() => {
         fetchUserData();
@@ -62,14 +74,22 @@ const Dashboard = () => {
 
     return (
         <main className="flex flex-col items-center min-v-screen px-4 py-8 bg-gray-100">
-            <div className="flex min-h-screen bg-gray-100">
-                {/* === Navbar Area === */}
-                <div className="w-64 h-screen fixed left-0 top-0 bg-white shadow-md">
+            <div className="flex min-h-screen bg-gray-100 relative">
+                {/* === Navbar (Fixed Sidebar for Desktop, Overlay for Mobile) === */}
+                <div className={`fixed top-0 left-0 h-screen bg-white shadow-md transition-transform duration-300 ${isMobile ? (isNavOpen ? 'translate-x-0 w-64' : '-translate-x-full w-0') : 'w-64 translate-x-0'}`}>
                     <Navbar />
                 </div>
 
+                {/* === Overlay for Mobile Navigation === */}
+                {isMobile && isNavOpen && (
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                        onClick={() => setIsNavOpen(false)}
+                    ></div>
+                )}
+
                 {/* === Main Content Area === */}
-                <div className='flex-1 p-6'>
+                <div className='flex-1 p-6 transition-all duration-300 md:ml-64'>
                     {/* Dashboard Overview */}
                     <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl">
                         <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">Welcome back, {userAlias}!</h1>
