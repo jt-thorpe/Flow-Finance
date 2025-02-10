@@ -86,9 +86,9 @@ def verify_token(token: str) -> str | None:
         decoded_token = jwt.decode(token, os.environ["JWT_SECRET_KEY"], algorithms=["HS256"])
         return decoded_token.get("user_id")
     except jwt.ExpiredSignatureError:
-        return "expired"
+        return "expired"  # TODO: change this
     except jwt.InvalidTokenError:
-        return "invalid"
+        return "invalid"  # TODO: change this
     except Exception as e:
-        print(f"Unexpected JWT error: {e}")
+        print(f"Unexpected JWT error: {e}")  # TODO: change this
         return None

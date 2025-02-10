@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Callable
 
-from flask import Blueprint, g, jsonify, make_response, request
+from flask import Blueprint, Response, g, jsonify, make_response, request
 
 from .services import authenticate, generate_token, verify_token
 
@@ -24,7 +24,6 @@ def login():
             "expires_at": expiry
         }), 200)
         response.set_cookie("jwt", token, httponly=True, secure=True, samesite="Lax")
-
         return response
 
     return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
@@ -43,9 +42,9 @@ def login_required(f: Callable) -> Callable:
 
         user_id = verify_token(token)
 
-        if user_id == "expired":
+        if user_id == "expired":  # TODO: change this
             return jsonify({'success': False, 'message': 'Session expired. Please log in again.'}), 401
-        if user_id == "invalid":
+        if user_id == "invalid":  # TODO: change this
             return jsonify({'success': False, 'message': 'Invalid token. Authentication failed.'}), 401
         if not user_id:
             return jsonify({'success': False, 'message': 'Authentication required.'}), 401
@@ -54,3 +53,18 @@ def login_required(f: Callable) -> Callable:
         return f(*args, **kwargs)
 
     return decorated_function
+
+
+@auth_blueprint.route('/verify', methods=['GET'])
+@login_required
+def verify_authenticity() -> tuple[Response, int]:
+    """Verifies that the provided token is genuine. Used by the frontend to check auth state."""
+    return jsonify({"auth": True}), 200
+
+
+@auth_blueprint.route("/logout", methods=["POST"])
+def logout() -> tuple[Response, int]:
+    """Logs the user out."""
+    response = make_response(jsonify({"message": "Logged out"}))
+    response.set_cookie("jwt", "", expires=0, httponly=True, secure=True, samesite="Lax")
+    return response, 200

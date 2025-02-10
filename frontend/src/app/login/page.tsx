@@ -2,36 +2,24 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
     const router = useRouter();
+    const { isAuthenticated, loading } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
-    const decodeToken = (token: string) => {
-        try {
-            const base64Url = token.split('.')[1]; // Extract payload
-            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-            return JSON.parse(atob(base64)); // Decode and parse JSON
-        } catch (error) {
-            return null;
-        }
-    };
-
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        let hasNavigated = false;
 
-        if (token) {
-            const decoded = decodeToken(token);
-
-            if (decoded && decoded.exp * 1000 > Date.now()) {
-                router.push('/dashboard'); // Token is valid
-            } else {
-                localStorage.removeItem('token'); // Remove expired/invalid token
-            }
+        if (isAuthenticated && !hasNavigated) {
+            hasNavigated = true;
+            router.push("/dashboard");
         }
-    }, [router]);
+    }, [isAuthenticated]);
+
 
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
@@ -49,11 +37,19 @@ export default function LoginPage() {
         });
 
         if (response.ok) {
-            router.push('/dashboard');
+            console.log("Login successful. Redirecting to dashboard...");
+            router.push('/dashboard'); // Redirect first
+
+            // Force reloading the auth state
+            setTimeout(() => {
+                window.location.reload(); // Reload ensures `AuthContext` verifies the session
+            }, 500);
         } else {
             setError('Invalid credentials, please try again.');
         }
     };
+
+
 
     return (
         <main className="flex flex-col items-center justify-center min-h-screen px-4 py-8 bg-gray-100">

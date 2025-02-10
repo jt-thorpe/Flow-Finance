@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import Navbar from '../components/NavBar';
+import { useAuth } from '../context/AuthContext';
 
 interface Transaction {
     category: string;
@@ -20,6 +21,8 @@ interface BudgetItem {
 }
 
 const Dashboard = () => {
+    const { isAuthenticated, loading } = useAuth();
+    const [hasFetched, setHasFetched] = useState(false);
     const router = useRouter();
     const [error, setError] = useState('');
     const [userAlias, setUserAlias] = useState<string | null>(null);
@@ -33,7 +36,7 @@ const Dashboard = () => {
     useEffect(() => {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 768);
-            if (window.innerWidth >= 768) setIsNavOpen(false); // Ensure nav closes when resizing back to desktop
+            if (window.innerWidth >= 768) setIsNavOpen(false);
         };
         handleResize();
         window.addEventListener("resize", handleResize);
@@ -41,8 +44,15 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        fetchUserData();
-    }, []);
+        console.log("Dashboard useEffect triggered. loading =", loading, "isAuthenticated =", isAuthenticated);
+
+        if (!loading && isAuthenticated && !hasFetched) {
+            console.log("Fetching user data...");
+            setHasFetched(true);
+            fetchUserData();
+        }
+    }, [loading, isAuthenticated]);
+
 
     const fetchUserData = async () => {
         try {
@@ -68,9 +78,9 @@ const Dashboard = () => {
                 setError('Failed to load user data.');
             }
         } catch (error) {
-            setError('Error fetching user data.');
+            setError("Error fetching dashboard data");
         }
-    };
+    }
 
     return (
         <main className="flex flex-col items-center min-v-screen px-4 py-8 bg-gray-100">
@@ -122,6 +132,7 @@ const Dashboard = () => {
         </main>
     );
 };
+
 
 const OverviewCard = ({ title, amount, color }: { title: string; amount: number | null; color: string }) => (
     <div className="bg-white p-6 rounded-2xl shadow-md text-center">

@@ -3,10 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiLogOut, FiMenu, FiX } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
 
 const Navbar = () => {
     const pathname = usePathname();
+    const { logout } = useAuth();
     const [isMobile, setIsMobile] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
 
@@ -55,6 +57,12 @@ const Navbar = () => {
                         </li>
                     ))}
                 </ul>
+
+                {/* Logout Button (Desktop) */}
+                <button onClick={logout} className="flex items-center space-x-2 px-4 py-2 mt-auto text-gray-700 hover:bg-gray-200 rounded-lg transition">
+                    <FiLogOut size={20} />
+                    <span>Logout</span>
+                </button>
             </nav>
 
             {/* Overlay Navigation (Floating Menu on Mobile) */}
@@ -73,6 +81,12 @@ const Navbar = () => {
                                 </li>
                             ))}
                         </ul>
+
+                        {/* Logout Button (Mobile)) */}
+                        <button onClick={logout} className="flex items-center space-x-2 px-4 py-2 mt-auto text-gray-700 hover:bg-gray-200 rounded-lg transition">
+                            <FiLogOut size={20} />
+                            <span>Logout</span>
+                        </button>
                     </nav>
                 </>
             )}
