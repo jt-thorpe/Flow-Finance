@@ -24,6 +24,14 @@ const AuthContext = createContext<AuthContextType>({
 // Fetch function for SWR (handles authentication checking)
 const fetcher = async (url: string) => {
     const res = await fetch(url, { credentials: "include" });
+
+    if (res.status === 401) {
+        if (typeof window !== "undefined") {
+            window.location.href = "/login"; // Redirect on auth failure
+        }
+        throw new Error("Unauthorized");
+    }
+
     if (!res.ok) throw new Error("Failed to fetch");
     return res.json();
 };
