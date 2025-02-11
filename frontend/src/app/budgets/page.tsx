@@ -73,7 +73,7 @@ const Budgets = () => {
                         <div className="flex flex-col gap-6">
                             {userBudgetSummary.length > 0 ? (
                                 userBudgetSummary.map((budget, index) => (
-                                    <BudgetCard key={index} budget={budget} />
+                                    <BudgetCard key={index} budget={budget} isMobile={isMobile} />
                                 ))
                             ) : (
                                 <p className="text-center text-gray-500">No budgets available.</p>
@@ -86,7 +86,7 @@ const Budgets = () => {
     );
 };
 
-const BudgetCard = ({ budget }: { budget: Record<string, any> }) => {
+const BudgetCard = ({ budget, isMobile }: { budget: Record<string, any>, isMobile: boolean }) => {
     const data = [
         { name: "Spent", value: budget.spent },
         { name: "Remaining", value: budget.remaining },
@@ -94,8 +94,8 @@ const BudgetCard = ({ budget }: { budget: Record<string, any> }) => {
     const COLORS = ["#FF6B6B", "#4CAF50"];
 
     return (
-        <div className="bg-white p-6 rounded-2xl shadow-md flex items-center w-full">
-            <div className="w-1/4 flex justify-center">
+        <div className={`bg-white p-6 rounded-2xl shadow-md ${isMobile ? 'flex flex-col items-center' : 'flex items-center w-full'}`}>
+            <div className={`${isMobile ? 'w-full mb-4 flex justify-center' : 'w-1/4 flex justify-center'}`}>
                 <ResponsiveContainer width={100} height={100}>
                     <PieChart>
                         <Pie data={data} cx="50%" cy="100%" startAngle={180} endAngle={0} innerRadius={30} outerRadius={45} paddingAngle={2} dataKey="value">
@@ -106,14 +106,14 @@ const BudgetCard = ({ budget }: { budget: Record<string, any> }) => {
                     </PieChart>
                 </ResponsiveContainer>
             </div>
-            <div className="w-1/4 pl-4">
+            <div className={`${isMobile ? 'w-full text-center' : 'w-1/4 pl-4'}`}>
                 <h2 className="text-lg font-semibold">{budget.category}</h2>
                 <p className="text-gray-700">Total: £{budget.amount.toFixed(2)}</p>
                 <p className="text-red-500">Spent: £{budget.spent.toFixed(2)}</p>
                 <p className="text-green-500">Remaining: £{budget.remaining.toFixed(2)}</p>
                 <p className="text-gray-500 text-sm">Frequency: {budget.frequency}</p>
             </div>
-            <div className="w-2/4 bg-gray-100 p-3 rounded-md text-gray-600 text-sm ml-4">
+            <div className={`${isMobile ? 'w-full mt-4 bg-gray-100 p-3 rounded-md text-gray-600 text-sm' : 'w-2/4 bg-gray-100 p-3 rounded-md text-gray-600 text-sm ml-4'}`}>
                 <ul>
                     <li>• There are {0} remaining days of this budget.</li>
                     <li>• There are {0} many scheduled payments remaining for the month.</li>
