@@ -2,6 +2,7 @@ import os
 from datetime import timedelta
 
 from auth.controllers import auth_blueprint
+from budgets.controllers import budgets_blueprint
 from core.extensions import db
 from dashboard.controllers import dashboard_blueprint
 from flask import Flask
@@ -35,6 +36,7 @@ with app.app_context():
 # Register Blueprints
 app.register_blueprint(home_blueprint)
 app.register_blueprint(auth_blueprint)
+app.register_blueprint(budgets_blueprint)
 app.register_blueprint(dashboard_blueprint)
 app.register_blueprint(transactions_blueprint)
 app.register_blueprint(users_blueprint)
