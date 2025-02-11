@@ -26,8 +26,8 @@ const Navbar = () => {
 
     const navItems = [
         { name: 'Dashboard', path: '/dashboard' },
-        { name: 'Transactions', path: '/transactions' },
         { name: 'Budgets', path: '/budgets' },
+        { name: 'Transactions', path: '/transactions' },
         { name: 'Insights', path: '/insights' },
         { name: 'Settings', path: '/settings' },
     ];
