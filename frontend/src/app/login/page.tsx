@@ -6,6 +6,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function LoginPage() {
     const router = useRouter();
+    const { login } = useAuth();
     const { isAuthenticated, loading } = useAuth();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -20,7 +21,6 @@ export default function LoginPage() {
         }
     }, [isAuthenticated]);
 
-
     const handleLogin = async (event: React.FormEvent) => {
         event.preventDefault();
 
@@ -29,22 +29,9 @@ export default function LoginPage() {
             return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password }),
-            credentials: "include",
-        });
+        const success = await login(email, password);
 
-        if (response.ok) {
-            console.log("Login successful. Redirecting to dashboard...");
-            router.push('/dashboard'); // Redirect first
-
-            // Force reloading the auth state
-            setTimeout(() => {
-                window.location.reload(); // Reload ensures `AuthContext` verifies the session
-            }, 500);
-        } else {
+        if (!success) {
             setError('Invalid credentials, please try again.');
         }
     };

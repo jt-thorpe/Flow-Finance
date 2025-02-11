@@ -1,67 +1,71 @@
+/* TODO: Consider SWR caching and if appropriate with Redis on backend */
+/* TODO: Look at what optimisations can be made with the authorisation process */
+
 'use client';
 
-import { usePathname } from "next/navigation";
-import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { createContext, useContext, useMemo } from "react";
+import useSWR from "swr";
 
 interface AuthContextType {
     isAuthenticated: boolean | null;
     loading: boolean;
+    login: (email: string, password: string) => Promise<boolean>;
     logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
     isAuthenticated: null,
     loading: true,
-    logout: () => { }
+    login: async () => false,
+    logout: () => { },
 });
 
+// Fetch function for SWR (handles authentication checking)
+const fetcher = async (url: string) => {
+    const res = await fetch(url, { credentials: "include" });
+    if (!res.ok) throw new Error("Failed to fetch");
+    return res.json();
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+    const router = useRouter();
     const pathname = usePathname();
-    const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-    const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        let isMounted = true;
+    const shouldFetchAuth = pathname !== "/login";
 
-        if (pathname === "/") {
-            setIsAuthenticated(null);
-            setLoading(false);
-            return;
+    // Only fetch auth if NOT on the login page
+    const { data, error, mutate } = useSWR(
+        shouldFetchAuth ? `${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify` : null,
+        fetcher
+    );
+
+    const isAuthenticated = data?.auth ?? null;
+    const loading = shouldFetchAuth && !data && !error;
+
+    // Function to handle login
+    const login = async (email: string, password: string): Promise<boolean> => {
+        try {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password }),
+                credentials: "include",
+            });
+
+            if (!response.ok) return false;
+
+            // Re-fetch auth state after successful login
+            await mutate();
+            router.push("/dashboard");
+            return true;
+        } catch (error) {
+            console.error("Login failed:", error);
+            return false;
         }
+    };
 
-        const fetchAuthStatus = async () => {
-            try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify`, {
-                    method: "GET",
-                    credentials: "include",
-                });
-
-                if (!response.ok) {
-                    if (isMounted) setIsAuthenticated(false);
-                } else {
-                    const data = await response.json();
-                    if (isMounted) setIsAuthenticated(data.auth === true);
-                }
-            } catch (error) {
-                if (isMounted) setIsAuthenticated(false);
-            } finally {
-                if (isMounted) {
-                    console.log("Auth check complete. Setting loading to false.");
-                    setLoading(false); // ✅ Ensure this runs
-                }
-            }
-        };
-
-        fetchAuthStatus();
-
-        return () => {
-            isMounted = false;
-        };
-    }, []);
-
-
-
-
+    // Function to handle logout
     const logout = async () => {
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/logout`, {
@@ -70,8 +74,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             });
 
             if (response.ok) {
-                setIsAuthenticated(false);
-                window.location.href = "/login"; // Force full page reload
+                await mutate(null, false); // Reset auth state
+                router.push("/login");
             } else {
                 console.error("Logout failed");
             }
@@ -83,7 +87,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const authContextValue = useMemo(() => ({
         isAuthenticated,
         loading,
-        logout
+        login,
+        logout,
     }), [isAuthenticated, loading]);
 
     return (

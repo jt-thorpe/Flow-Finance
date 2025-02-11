@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { useEffect, useState } from "react";
 import Navbar from '../components/NavBar';
 import { useAuth } from '../context/AuthContext';
@@ -22,8 +21,6 @@ interface BudgetItem {
 
 const Dashboard = () => {
     const { isAuthenticated, loading } = useAuth();
-    const [hasFetched, setHasFetched] = useState(false);
-    const router = useRouter();
     const [error, setError] = useState('');
     const [userAlias, setUserAlias] = useState<string | null>(null);
     const [userTransactions, setUserTransactions] = useState<Transaction[]>([]);
@@ -46,13 +43,11 @@ const Dashboard = () => {
     useEffect(() => {
         console.log("Dashboard useEffect triggered. loading =", loading, "isAuthenticated =", isAuthenticated);
 
-        if (!loading && isAuthenticated && !hasFetched) {
+        if (!loading && isAuthenticated) {
             console.log("Fetching user data...");
-            setHasFetched(true);
             fetchUserData();
         }
     }, [loading, isAuthenticated]);
-
 
     const fetchUserData = async () => {
         try {
