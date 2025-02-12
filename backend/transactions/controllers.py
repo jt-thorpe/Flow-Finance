@@ -1,26 +1,30 @@
-"""In here we will have the controllers for the transactions.
-
-So things like creating a new income, expense, budget, etc. will be done here.
-
-E.g. we will need routes for creating/modifying budgets, and a page for viewing transactions.
-"""
-
+from itertools import chain
 
 from auth.controllers import login_required
-from cache.services import get_user_cache
-from flask import Blueprint, render_template, session
+from flask import Blueprint, jsonify, request
+from transactions.models import Expense, Income
 
-transactions_blueprint = Blueprint('transactions', __name__)
+transactions_blueprint = Blueprint('transactions', __name__, url_prefix='/api/transactions')
 
 
-@transactions_blueprint.route('/transactions', methods=['GET'])
+@transactions_blueprint.route("/get-by", methods=["GET"])
 @login_required
-def transactions_server() -> str:
-    """Serve `dashboard.html` page."""
-    cached_user_data = get_user_cache(session["user_id"])
-    user_transactions = cached_user_data["user_incomes"] + cached_user_data["user_expenses"]
-    date_sorted_transactions = sorted(user_transactions, key=lambda x: x["date"], reverse=True)
+def get_transactions():
+    page = request.args.get("page", 1, type=int)
+    per_page = request.args.get("limit", 20, type=int)
 
-    return render_template('transactions.html',
-                           user_alias=session["user_alias"],
-                           user_transactions=date_sorted_transactions,)
+    # Fetch income and expenses
+    incomes = Income.query.order_by(Income.date.desc()).paginate(page=page, per_page=per_page // 2, error_out=False)
+    expenses = Expense.query.order_by(Expense.date.desc()).paginate(page=page, per_page=per_page // 2, error_out=False)
+
+    # Convert to dictionary and add type tags
+    income_list = [dict(tx.to_dict(), type="income") for tx in incomes.items]
+    expense_list = [dict(tx.to_dict(), type="expense") for tx in expenses.items]
+
+    # Merge and sort transactions
+    transactions_combined = sorted(chain(income_list, expense_list), key=lambda x: x["date"], reverse=True)
+
+    return jsonify({
+        "transactions": transactions_combined,
+        "has_more": incomes.has_next or expenses.has_next
+    })
