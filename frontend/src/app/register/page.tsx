@@ -1,6 +1,6 @@
 'use client';
 
-import EmailInput from "@/app/components/EmailInput";
+import EmailInput from "@/app/components/ui/EmailInput";
 import { useRouter } from 'next/navigation';
 import { useState } from "react";
 import { useForm } from "react-hook-form";

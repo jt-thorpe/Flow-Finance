@@ -1,4 +1,4 @@
-import Navbar from '../components/NavBar';
+import Navbar from './ui/NavBar';
 
 const PageTemplate = ({ title }: { title: string }) => {
     return (
