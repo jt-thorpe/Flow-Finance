@@ -1,10 +1,10 @@
 from budgets.models import Budget
 from core.extensions import db
-from sqlalchemy import select
-from transactions.models import Expense, Income
+from sqlalchemy import select, text
+from transactions.models import Transaction
 
 
-def get_n_transactions(user_id: str, N: int = 10) -> list:
+def get_n_transactions_by(user_id: str, N: int = 10) -> list:
     """Get N-many recent transactions (both income and expense) for a user.
 
     Args:
@@ -14,11 +14,7 @@ def get_n_transactions(user_id: str, N: int = 10) -> list:
     Returns:
         list: a list of Transaction objects (Income or Expense).
     """
-    stmt = select(Income, Expense).join(Income.user_id).where(
-        Income.user_id == user_id).order_by("date desc").limit(N)
-    res = db.session.execute(stmt).fetchall()
-
-    return res
+    return db.session.query(Transaction).filter_by(user_id=user_id).limit(limit=N).all()
 
 
 def get_category_totals_by(user_id: str) -> dict[str, float]:
@@ -33,10 +29,10 @@ def get_category_totals_by(user_id: str) -> dict[str, float]:
     # TODO: a VIEW is potentially better here, no built-in SQLAlchemy support however
 
     category_totals = (
-        db.session.query(Expense.category, db.func.sum(Expense.amount).cast(
+        db.session.query(Transaction.category, db.func.sum(Transaction.amount).cast(
             db.Float))  # Not entirely sure why need to cast back to float
-        .filter(Expense.user_id == user_id)
-        .group_by(Expense.category)
+        .filter(Transaction.user_id == user_id)
+        .group_by(Transaction.category)
         .all()
     )
 

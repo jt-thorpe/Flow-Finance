@@ -1,7 +1,8 @@
-from datetime import datetime
 from typing import Dict
 
-from transactions.services import get_budgets_by, get_category_totals_by
+from flask import g
+from transactions.services import (get_budgets_by, get_category_totals_by,
+                                   get_n_transactions_by)
 
 
 def create_budget_summary(user_id: str) -> list[dict]:
@@ -29,19 +30,16 @@ def create_budget_summary(user_id: str) -> list[dict]:
 
 def compute_dashboard(user_data: Dict) -> Dict:
     """Compute and return the required data for displaying on the /dashboard page in a JSON serialisable format."""
-    combined_transactions = [
-        {**item, "type": "income"} for item in user_data['incomes']
-    ] + [
-        {**item, "type": "expense"} for item in user_data['expenses']
-    ]
-    combined_transactions.sort(key=lambda x: datetime.strptime(x["date"], "%Y-%m-%d"), reverse=True)
-    incomes_total = sum(income["amount"] for income in user_data["incomes"])
-    expenses_total = sum(expense["amount"] for expense in user_data["expenses"])
+    user_id = g.user_id
+
+    latest_transactions = [transaction.to_dict() for transaction in get_n_transactions_by(user_id=user_id, N=10)]
+    incomes_total = sum(income["amount"] for income in user_data["transactions"] if income["type"] == "income")
+    expenses_total = sum(expense["amount"] for expense in user_data["transactions"] if expense["type"] == "expense")
     budget_summary = create_budget_summary(user_data["meta"]["id"])
 
     return {
         "user_alias": user_data["meta"]["alias"],
-        "user_latest_transactions": combined_transactions[:10],  # Latest 10
+        "user_latest_transactions": latest_transactions,
         "user_incomes_total": incomes_total,
         "user_expenses_total": expenses_total,
         "user_budget_summary": budget_summary,

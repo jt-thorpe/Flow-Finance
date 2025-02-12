@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import text
 from transactions.enums import Frequency, TransactionCategory
-from transactions.models import Expense
+from transactions.models import Transaction, TransactionType
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 USER_ACCOUNT_ID: Final[str] = "user_account.id"
@@ -62,9 +62,10 @@ class Budget(db.Model):
         # TODO: Add support for date ranges i.e. a monthly budget only looks at expenses for dates in that month.
         # TODO: Add support for not hitting db everytime, but checking cache first
         """
-        return (db.session.query(db.func.sum(Expense._amount))
-                .filter(Expense.user_id == self.user_id,
-                        Expense.category == self.category)
+        return (db.session.query(db.func.sum(Transaction._amount))
+                .filter(Transaction.user_id == self.user_id,
+                        Transaction.type == TransactionType.EXPENSE,
+                        Transaction.category == self.category)
                 .scalar() or 0) / 100
 
     @hybrid_property

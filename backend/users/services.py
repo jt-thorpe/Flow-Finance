@@ -52,8 +52,7 @@ def get_user_with_associations(user_id: str) -> User:
         User: the User object with associated data such as incomes, expenses, and budgets.
     """
     return User.query.options(
-        joinedload(User.incomes),
-        joinedload(User.expenses),
+        joinedload(User.transactions),
         joinedload(User.budgets)
     ).get(user_id)
 
@@ -70,7 +69,6 @@ def serialise_user_associations(user: User) -> Dict:
     return {
         "id": str(user.id),
         "alias": user.alias,
-        "incomes": [income.to_dict() for income in user.incomes],
-        "expenses": [expense.to_dict() for expense in user.expenses],
+        "transactions": [transaction.to_dict() for transaction in user.transactions],
         "budgets": [budget.to_dict() for budget in user.budgets]
     }

@@ -26,8 +26,7 @@ def cache_user_with_associations(user: User) -> None:
 
         user_data = {
             "meta": json.dumps({"id": serialised_user['id'], "alias": serialised_user['alias']}),
-            "incomes": json.dumps(serialised_user['incomes']),
-            "expenses": json.dumps(serialised_user['expenses']),
+            "transactions": json.dumps(serialised_user['transactions']),
             "budgets": json.dumps(serialised_user['budgets'])
         }
 
@@ -50,8 +49,7 @@ def get_user_cache(user_id: str) -> dict | None:
 
     return {
         "meta": json.loads(cached_data.get("meta", "{}")),
-        "incomes": json.loads(cached_data.get("incomes", "[]")),
-        "expenses": json.loads(cached_data.get("expenses", "[]")),
+        "transactions": json.loads(cached_data.get("transactions", "[]")),
         "budgets": json.loads(cached_data.get("budgets", "[]")),
     }
 
