@@ -1,10 +1,14 @@
-from auth.controllers import login_required
-from auth.services import hash_password
-from cache.services import cache_user_with_associations, get_user_cache
 from flask import Blueprint, Response, g, jsonify, request
 from sqlalchemy.exc import IntegrityError
-from users.services import (add_user_account_to_db, get_user_with_associations,
-                            is_taken, serialise_user_associations)
+
+from backend.routes.auth_routes import login_required
+from backend.services.auth_services import hash_password
+from backend.services.cache_services import (cache_user_with_associations,
+                                             get_user_cache)
+from backend.services.users_services import (add_user_account_to_db,
+                                             get_user_with_associations,
+                                             is_taken,
+                                             serialise_user_associations)
 
 users_blueprint = Blueprint('users', __name__, url_prefix='/api/users')
 

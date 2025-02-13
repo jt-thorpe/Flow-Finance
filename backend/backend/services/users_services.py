@@ -1,10 +1,10 @@
 from typing import Dict
 
-from core.extensions import db
 from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
-from .models import User
+from backend.extensions import db
+from backend.models.user_models import User
 
 
 def is_taken(email: str) -> bool:

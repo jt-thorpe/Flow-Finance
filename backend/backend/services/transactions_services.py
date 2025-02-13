@@ -1,7 +1,6 @@
-from budgets.models import Budget
-from core.extensions import db
-from sqlalchemy import select, text
-from transactions.models import Transaction
+from backend.extensions import db
+from backend.models.budget_models import Budget
+from backend.models.transaction_models import Transaction
 
 
 def get_n_transactions_by(user_id: str, N: int = 10) -> list:

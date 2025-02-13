@@ -7,11 +7,10 @@ import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import (InvalidHashError, VerificationError,
                                VerifyMismatchError)
-from core.extensions import db
 from flask import g
-from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
-from users.models import User
+
+from backend.queries.auth_queries import get_user_by
 
 PH: Final[PasswordHasher] = PasswordHasher()
 
@@ -43,9 +42,7 @@ def authenticate(email: str, password: str) -> bool:
         bool: True if authentication is successful, False otherwise.
     """
     try:
-        user = db.session.execute(
-            select(User.id, User.password).where(User.email == email)
-        ).first()
+        user = get_user_by(email=email)
 
         if user and PH.verify(user.password, password):
             g.user_id = user[0]

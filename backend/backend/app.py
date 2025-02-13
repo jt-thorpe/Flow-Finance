@@ -1,15 +1,15 @@
 import os
 from datetime import timedelta
 
-from auth.controllers import auth_blueprint
-from budgets.controllers import budgets_blueprint
-from core.extensions import db
-from dashboard.controllers import dashboard_blueprint
 from flask import Flask
 from flask_cors import CORS
-from home.controllers import home_blueprint
-from transactions.controllers import transactions_blueprint
-from users.controllers import users_blueprint
+
+from backend.extensions import db
+from backend.routes.auth_routes import auth_blueprint
+from backend.routes.budget_routes import budgets_blueprint
+from backend.routes.dashboard_routes import dashboard_blueprint
+from backend.routes.transactions_routes import transactions_blueprint
+from backend.routes.users_routes import users_blueprint
 
 app = Flask(__name__,
             template_folder='/app/frontend/templates/',
@@ -34,7 +34,6 @@ with app.app_context():
 
 
 # Register Blueprints
-app.register_blueprint(home_blueprint)
 app.register_blueprint(auth_blueprint)
 app.register_blueprint(budgets_blueprint)
 app.register_blueprint(dashboard_blueprint)

@@ -1,6 +1,7 @@
-from auth.controllers import login_required
 from flask import Blueprint, jsonify, request
-from transactions.models import Transaction
+
+from backend.models.transaction_models import Transaction
+from backend.routes.auth_routes import login_required
 
 transactions_blueprint = Blueprint('transactions', __name__, url_prefix='/api/transactions')
 

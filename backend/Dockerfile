@@ -14,10 +14,13 @@ COPY requirements.txt /app/
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the project files to the working directory
-COPY . /app/
+COPY . .
+
+# Set PYTHONPATH to ensure the module is found
+ENV PYTHONPATH=/app
 
 # Expose port 5000 for Flask
 EXPOSE 5000
 
 # Command to run the Flask application
-CMD ["python -m", "core.app"]
+CMD ["python -m", "backend.app"]

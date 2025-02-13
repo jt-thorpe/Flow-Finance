@@ -1,14 +1,15 @@
 import os
 from datetime import timedelta
 
-from auth.services import hash_password
-from budgets.models import Budget
-from core.app import app
-from core.extensions import db
 from sqlalchemy import select, text
-from transactions.enums import Frequency, TransactionCategory
-from transactions.models import Transaction, TransactionType
-from users.models import User
+
+from backend.core.app import app
+from backend.core.extensions import db
+from backend.enums.transaction_enums import Frequency, TransactionCategory
+from backend.models.budget_models import Budget
+from backend.models.transaction_models import Transaction, TransactionType
+from backend.models.user_models import User
+from backend.services.auth_services import hash_password
 
 """A script to populate the database with test data."""
 

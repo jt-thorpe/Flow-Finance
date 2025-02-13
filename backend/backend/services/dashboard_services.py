@@ -1,8 +1,10 @@
 from typing import Dict
 
 from flask import g
-from transactions.services import (get_budgets_by, get_category_totals_by,
-                                   get_n_transactions_by)
+
+from backend.services.transactions_services import (get_budgets_by,
+                                                    get_category_totals_by,
+                                                    get_n_transactions_by)
 
 
 def create_budget_summary(user_id: str) -> list[dict]:

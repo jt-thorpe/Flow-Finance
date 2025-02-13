@@ -1,21 +1,18 @@
-import enum
 import uuid
 from typing import Final, Optional
 
-from core.extensions import db
 from sqlalchemy import Date, Enum, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import text
-from transactions.enums import Frequency, TransactionCategory
+
+from backend.enums.frequency_enums import Frequency
+from backend.enums.transaction_enums import (TransactionCategory,
+                                             TransactionType)
+from backend.extensions import db
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 USER_ACCOUNT_ID: Final[str] = "user_account.id"
-
-
-class TransactionType(enum.Enum):
-    INCOME = "income"
-    EXPENSE = "expense"
 
 
 class Transaction(db.Model):

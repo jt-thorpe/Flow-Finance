@@ -1,7 +1,9 @@
-from auth.controllers import login_required
-from cache.services import cache_user_with_associations, get_user_cache
 from flask import Blueprint, Response, g, jsonify
-from users.services import get_user_with_associations
+
+from backend.routes.auth_routes import login_required
+from backend.services.cache_services import (cache_user_with_associations,
+                                             get_user_cache)
+from backend.services.users_services import get_user_with_associations
 
 budgets_blueprint = Blueprint('budgets', __name__, url_prefix='/api/budgets')
 

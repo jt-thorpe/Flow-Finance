@@ -1,10 +1,11 @@
 import uuid
 from typing import Dict, Final
 
-from core.extensions import db
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
+
+from backend.extensions import db
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 

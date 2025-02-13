@@ -3,7 +3,8 @@ from typing import Callable
 
 from flask import Blueprint, Response, g, jsonify, make_response, request
 
-from .services import authenticate, generate_token, verify_token
+from backend.services.auth_services import (authenticate, generate_token,
+                                            verify_token)
 
 auth_blueprint = Blueprint('auth', __name__, url_prefix='/api/auth')
 

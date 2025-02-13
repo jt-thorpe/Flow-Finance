@@ -1,9 +1,9 @@
 import json
 from typing import Final
 
-from core.extensions import redis_cache
-from users.models import User
-from users.services import serialise_user_associations
+from backend.extensions import redis_cache
+from backend.models.user_models import User
+from backend.services.users_services import serialise_user_associations
 
 CACHE_EXPIRATION: Final[int] = 60 * 30
 
