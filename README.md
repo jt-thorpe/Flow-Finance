@@ -181,7 +181,7 @@ This project is licensed under **[Your Name]**'s proprietary license. All rights
 Developed by **Jake Thorpe**\
 💬 Contact: jtt-applications@proton.me\
 🔗 GitHub: [github.com/jt-thorpe](https://github.com/jt-thorpe/)\
-🔗 LinkedIn: [github.com/jt-thorpe](https://www.linkedin.com/in/jt-thorpe/)\
+🔗 LinkedIn: [linkedin.com/in/jt-thorpe](https://www.linkedin.com/in/jt-thorpe/)\
 🔗 Portfolio: coming soon
 
 ---
