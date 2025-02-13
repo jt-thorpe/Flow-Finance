@@ -4,12 +4,12 @@ Flow-Finance is a **personal finance budgeting application** designed to help us
 
 ## Features
 
-✅ **User Authentication** – Secure JWT-based login system.\
-✅ **Transaction Management** – Track income, expenses, and recurring transactions.\
-✅ **Budget Tracking** – Set and monitor budget goals.\
-✅ **Interactive Dashboard** – Visual representation of finances.\
-✅ **Dockerized Setup** – Easily deployable with `docker-compose`.\
-✅ **Optimized Database Structure** – Uses PostgreSQL with SQLAlchemy ORM.
+- **User Authentication** – Secure JWT-based login system.\
+- **Transaction Management** – Track income, expenses, and recurring transactions.\
+- **Budget Tracking** – Set and monitor budget goals.\
+- **Interactive Dashboard** – Visual representation of finances.\
+- **Dockerized Setup** – Easily deployable with `docker compose`.\
+- **Optimized Database Structure** – Uses PostgreSQL with SQLAlchemy ORM.
 
 ---
 
@@ -31,17 +31,23 @@ Flow-Finance/
 │   ├── scripts/        # Database setup & utility scripts
 │   ├── migrations/     # Alembic migrations (coming soon)
 │   ├── tests/          # Unit tests for backend
-│   ├── .env            # Environment variables
 │   ├── Dockerfile      # Backend Dockerfile
+│   ├── .env
 │   ├── requirements.txt
 │
 ├── frontend/           # Frontend (Next.js - TypeScript)
 │   ├── src/
 │   ├── public/
-│   ├── package.json
-│   ├── next.config.js
-│   ├── tsconfig.json
 │   ├── .env.local
+│   ├── .gitignore
+│   ├── package.json
+│   ├── next.config.ts
+│   ├── package-lock.json
+│   ├── package.json
+│   ├── postcss.config.mjs
+│   ├── tailwind.config.ts
+│   ├── eslint.config.mjs
+│   ├── tsconfig.json
 │
 ├── docker/             # Docker-related scripts (optional)
 │   ├── start.sh
@@ -55,7 +61,7 @@ Flow-Finance/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### **🔹 Prerequisites**
 
@@ -174,7 +180,8 @@ This project is licensed under **[Your Name]**'s proprietary license. All rights
 
 Developed by **Jake Thorpe**\
 💬 Contact: jtt-applications@proton.me\
-🔗 GitHub: @jt-thorpe\
+🔗 GitHub: [github.com/jt-thorpe](https://github.com/jt-thorpe/)\
+🔗 LinkedIn: [github.com/jt-thorpe](https://www.linkedin.com/in/jt-thorpe/)\
 🔗 Portfolio: coming soon
 
 ---
