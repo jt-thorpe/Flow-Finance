@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from "react";
-import Table from '../components/Table';
-import Navbar from '../components/ui/NavBar';
-import { useAuth } from '../context/AuthContext';
+import { useContext, useEffect, useState } from "react";
+import Navbar from '../../components/ui/NavBar';
+import Table from '../../components/ui/Table';
+import { AuthContext } from "../../context/AuthContext";
 
 interface Transaction {
     category: string;
@@ -21,7 +21,7 @@ interface BudgetItem {
 }
 
 const Dashboard = () => {
-    const { isAuthenticated, loading } = useAuth();
+    const auth = useContext(AuthContext); // ✅ Get auth context
     const [error, setError] = useState('');
     const [userAlias, setUserAlias] = useState<string | null>(null);
     const [userTransactions, setUserTransactions] = useState<Transaction[]>([]);
@@ -42,13 +42,10 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        console.log("Dashboard useEffect triggered. loading =", loading, "isAuthenticated =", isAuthenticated);
-
-        if (!loading && isAuthenticated) {
-            console.log("Fetching user data...");
-            fetchUserData();
+        if (auth?.user) {
+            fetchUserData(); // ✅ Fetch data only if user is authenticated
         }
-    }, [loading, isAuthenticated]);
+    }, [auth?.user]);
 
     const fetchUserData = async () => {
         try {

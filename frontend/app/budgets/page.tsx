@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
-import Navbar from "../components/ui/NavBar";
-import { useAuth } from "../context/AuthContext";
+import Navbar from "../../components/ui/NavBar";
+import { useAuth } from "../../context/AuthContext";
 
 interface BudgetItem {
     category: string;

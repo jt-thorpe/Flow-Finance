@@ -1,3 +1,3 @@
-import { Settings } from "../components/temp_page";
+import { Settings } from "../../components/ui/temp_page";
 
 export default Settings;

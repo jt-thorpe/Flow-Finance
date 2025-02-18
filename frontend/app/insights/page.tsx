@@ -1,3 +1,3 @@
-import { Insights } from "../components/temp_page";
+import { Insights } from "../../components/ui/temp_page";
 
 export default Insights;
