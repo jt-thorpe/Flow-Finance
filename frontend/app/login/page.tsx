@@ -1,38 +1,37 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useContext, useState } from 'react';
 import { AuthContext } from "../../context/AuthContext";
 
 
 export default function LoginPage() {
-
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const auth = useContext(AuthContext);
+    const router = useRouter();
 
     if (!auth) {
         console.log("AuthContext is null! This means the provider is missing.");
         return <p>Loading authentication...</p>;
     }
 
-
     const handleLoginSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
-
-        console.log("Login form submitted"); // 🔹 Debugging Step 1
 
         if (!email || !password) {
             setError("Please provide your email and password.");
             return;
         }
 
-        try {
-            console.log("Calling auth?.login()..."); // 🔹 Debugging Step 2
-            await auth?.login(email, password);
-            console.log("Auth login function completed"); // 🔹 Debugging Step 3
-        } catch (error) {
-            console.error("Login failed:", error);
+        console.log("Submitting login request...");
+        const success = await auth.login(email, password); // ✅ Await the function
+
+        if (success) {
+            console.log("Login successful, redirecting to dashboard...");
+            router.push("/dashboard"); // ✅ Middleware will now verify the session
+        } else {
             setError("Invalid credentials, please try again.");
         }
     };

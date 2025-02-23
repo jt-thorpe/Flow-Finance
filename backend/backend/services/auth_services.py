@@ -8,7 +8,7 @@ from argon2 import PasswordHasher
 from argon2.exceptions import (InvalidHashError, VerificationError,
                                VerifyMismatchError)
 from backend.queries.auth_queries import get_user_by
-from flask import g, jsonify
+from flask import g
 from sqlalchemy.exc import SQLAlchemyError
 
 PH: Final[PasswordHasher] = PasswordHasher()
@@ -76,16 +76,14 @@ def generate_token(user_id: uuid.UUID) -> tuple[str, int]:
     return token, int(expiry_time.timestamp())
 
 
-def verify_token(token: str):
+def verify_token(token: str) -> str:
     if not token:
-        return jsonify({"error": "No token provided"}), 401
+        raise ValueError("JWT is missing")
 
     try:
         decoded_token = jwt.decode(token, os.environ["JWT_SECRET_KEY"], algorithms=["HS256"])
-        return jsonify({
-            "user_id": decoded_token["user_id"],
-        }), 200
+        return decoded_token["user_id"]
     except jwt.ExpiredSignatureError:
-        return jsonify({"error": "Token expired"}), 401
+        raise jwt.ExpiredSignatureError("JWT signature expired")
     except jwt.InvalidTokenError:
-        return jsonify({"error": "Invalid token"}), 401
+        raise jwt.InvalidTokenError("JWT is invalid")

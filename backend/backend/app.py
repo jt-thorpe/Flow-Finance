@@ -1,15 +1,14 @@
 import os
 from datetime import timedelta
 
-from flask import Flask
-from flask_cors import CORS
-
 from backend.extensions import db
 from backend.routes.auth_routes import auth_blueprint
 from backend.routes.budget_routes import budgets_blueprint
 from backend.routes.dashboard_routes import dashboard_blueprint
 from backend.routes.transactions_routes import transactions_blueprint
 from backend.routes.users_routes import users_blueprint
+from flask import Flask
+from flask_cors import CORS
 
 app = Flask(__name__,
             template_folder='/app/frontend/templates/',
@@ -17,6 +16,7 @@ app = Flask(__name__,
 
 CORS(app,
      resources={r"/api/*": {"origins": "http://localhost:3000"}},
+     origins="http://localhost:3000",
      supports_credentials=True)
 
 

@@ -1,69 +1,32 @@
-import { login as apiLogin, logout as apiLogout, verifyToken as apiVerifyToken, User } from "../services/authServices";
-
-// Context update functions
-type SetState<T> = (value: T) => void;
-
-// Infer router type dynamically from `useRouter()`
-type RouterType = ReturnType<typeof import("next/navigation").useRouter>;
+import { login as apiLogin, logout as apiLogout } from "../services/authServices";
 
 
 export const handleLogin = async (
     email: string,
-    password: string,
-    setUser: (user: any) => void,
-    setIsAuthenticated: (auth: boolean) => void,
-    router: any
-): Promise<void> => {
-    console.log("Login triggered"); // Debugging
+    password: string
+): Promise<boolean> => {
+    console.log("auth/handleLogin : handling login, requesting API call...");
 
     try {
-        const success = await apiLogin(email, password);
+        const data = await apiLogin(email, password);
+        if (!data) {
+            console.error("Login failed");
+            return false;
+        }
 
-        if (!success) throw new Error("Login failed");
+        console.log("Login successful. User:", data.user_id);
 
-        console.log("Login successful, verifying token...");
-        setIsAuthenticated(true);
-
-        // Immediately verify token after login (cookies will be sent automatically)
-        await handleVerifyToken(setUser, setIsAuthenticated);
-
-        router.push("/dashboard");
+        return true; // ✅ Only return success/failure, middleware will confirm session
     } catch (error) {
-        console.error("Login failed:", error);
-        throw error;
+        console.error("Login error:", error);
+        return false;
     }
 };
 
 
-export const handleLogout = async (
-    setUser: SetState<User | null>,
-    setIsAuthenticated: SetState<boolean>,
-    router: RouterType
-): Promise<void> => {
-    try {
-        await apiLogout();
-    } catch (error) {
-        console.error("Logout failed:", error);
-    } finally {
-        setUser(null);
-        setIsAuthenticated(false);
-        router.push("/login");
-    }
-};
+export const handleLogout = async (): Promise<void> => {
+    console.log("auth/handleLogout: Logging out user...");
+    await apiLogout(); // ✅ Calls backend logout
 
-
-export const handleVerifyToken = async (
-    setUser: (user: User | null) => void,
-    setIsAuthenticated: (auth: boolean) => void
-): Promise<void> => {
-    const userData = await apiVerifyToken();
-
-    if (!userData) {
-        setUser(null);
-        setIsAuthenticated(false);
-        return;
-    }
-
-    setUser(userData); // Store user details
-    setIsAuthenticated(true);
+    console.log("auth/handleLogout: Logout complete.");
 };

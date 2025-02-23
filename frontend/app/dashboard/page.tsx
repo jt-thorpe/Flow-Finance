@@ -42,7 +42,8 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        if (auth?.user) {
+        console.log(`dashboard/page.tsx - useEffect, user_id = ${auth?.user}`)
+        if (auth?.user?.user_id) {
             fetchUserData(); // ✅ Fetch data only if user is authenticated
         }
     }, [auth?.user]);
