@@ -166,3 +166,6 @@ cython_debug/
 
 # Roadmap
 ROADMAP/
+
+# Ignore logs
+logconf/logs/
