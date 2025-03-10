@@ -12,16 +12,16 @@ services:
       timeout: 5s
   backend:
     build:
-      context: ./backend
+      context: ./
       dockerfile: Dockerfile
     image: flow-finance-backend:0.0.1
     command: python -m backend.app
     volumes:
-      - ./backend:/app
+      - ./:/app
     ports:
       - "5000:5000"
     env_file:
-      - backend/.env
+      - .env
     depends_on:
       redis:
         condition: service_healthy

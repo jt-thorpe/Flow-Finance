@@ -1,3 +1,5 @@
+import logging.config
+import logging.handlers
 import os
 from datetime import timedelta
 
@@ -7,8 +9,14 @@ from backend.routes.budget_routes import budgets_blueprint
 from backend.routes.dashboard_routes import dashboard_blueprint
 from backend.routes.transactions_routes import transactions_blueprint
 from backend.routes.users_routes import users_blueprint
+from backend.utils import setup_logging
 from flask import Flask
 from flask_cors import CORS
+
+# Initialise logging
+setup_logging()
+logger = logging.getLogger(__name__)
+
 
 app = Flask(__name__,
             template_folder='/app/frontend/templates/',
