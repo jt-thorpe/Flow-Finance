@@ -164,8 +164,5 @@ cython_debug/
 # CSS/SCSS/SASS
 .sass-cache
 
-# Roadmap
-ROADMAP/
-
 # Ignore logs
 logconf/logs/
