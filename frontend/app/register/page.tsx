@@ -1,9 +1,9 @@
 'use client';
 
-import EmailInput from "@/app/components/ui/EmailInput";
 import { useRouter } from 'next/navigation';
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import EmailInput from '../../components/ui/EmailInput';
 
 interface FormData {
     alias: string;
