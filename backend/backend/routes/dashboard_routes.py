@@ -1,10 +1,9 @@
-from flask import Blueprint, Response, g, jsonify
-
 from backend.routes.auth_routes import login_required
 from backend.services.cache_services import (cache_user_with_associations,
                                              get_user_cache)
 from backend.services.dashboard_services import compute_dashboard
 from backend.services.users_services import get_user_with_associations
+from flask import Blueprint, Response, g, jsonify
 
 dashboard_blueprint = Blueprint('dashboard', __name__, url_prefix='/api/dashboard')
 
@@ -28,6 +27,7 @@ def load_dashboard() -> tuple[Response, int]:
         cache_user_with_associations(user_data)
         user_data = user_data.to_dict()
 
+    print("dashboard_routes.load_dashboard : user_data returned from cache")
     computed_dashboard_data = compute_dashboard(user_data=user_data)
 
     return jsonify(computed_dashboard_data), 200
