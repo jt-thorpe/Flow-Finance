@@ -21,6 +21,7 @@ interface Transaction {
 export default function TransactionsPage() {
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [page, setPage] = useState<number>(1);
+    const [limit, setLimit] = useState<number>(20)
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [isMobile, setIsMobile] = useState(false);
@@ -38,7 +39,7 @@ export default function TransactionsPage() {
     }, []);
 
     const loadTransactions = async () => {
-        const response = await fetchTransactions(page);
+        const response = await fetchTransactions(page.toString(), limit.toString());
         if (response.transactions.length > 0) {
             setTransactions((prev) => [...prev, ...response.transactions]);
             setPage((prev) => prev + 1);
