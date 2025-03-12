@@ -1,5 +1,3 @@
-import logging.config
-import logging.handlers
 import os
 from datetime import timedelta
 
@@ -15,7 +13,6 @@ from flask_cors import CORS
 
 # Initialise logging
 setup_logging()
-logger = logging.getLogger(__name__)
 
 
 app = Flask(__name__,
@@ -23,8 +20,7 @@ app = Flask(__name__,
             static_folder='/app/frontend/static/')  # prepend /app/ for Docker
 
 CORS(app,
-     resources={r"/api/*": {"origins": "http://localhost:3000"}},
-     origins="http://localhost:3000",
+     resources={r"/api/*": {"origins": "https://localhost:3000"}},
      supports_credentials=True)
 
 
@@ -50,4 +46,6 @@ app.register_blueprint(users_blueprint)
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0',
+            debug=True,
+            ssl_context=('certs/localhost.pem', 'certs/localhost-key.pem'))

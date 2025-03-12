@@ -13,8 +13,8 @@ export default function LoginPage() {
     const router = useRouter();
 
     if (!auth) {
-        console.log("AuthContext is null! This means the provider is missing.");
-        return <p>Loading authentication...</p>;
+        console.log("AuthContext is null! AuthProvider missing!");
+        return <p>Critical Error: Login Page Unavailable</p>;
     }
 
     const handleLoginSubmit = async (event: React.FormEvent) => {
@@ -26,11 +26,11 @@ export default function LoginPage() {
         }
 
         console.log("Submitting login request...");
-        const success = await auth.login(email, password); // ✅ Await the function
+        const success = await auth.login(email, password);
 
         if (success) {
             console.log("Login successful, redirecting to dashboard...");
-            router.push("/dashboard"); // ✅ Middleware will now verify the session
+            router.push("/dashboard"); // Middleware will now verify the token
         } else {
             setError("Invalid credentials, please try again.");
         }

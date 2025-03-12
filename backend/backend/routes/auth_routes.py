@@ -2,7 +2,9 @@ from functools import wraps
 from typing import Callable
 
 import jwt
+from backend.extensions import logger
 from backend.services.auth_services import (authenticate, generate_token,
+                                            get_token_from_header,
                                             verify_token)
 from flask import Blueprint, Response, g, jsonify, make_response, request
 
@@ -21,19 +23,19 @@ def login():
         token, expiry = generate_token(user_id=g.user_id)
         response = make_response(jsonify({
             "message": "Login successful",
-            "user_id": g.user_id,  # ✅ Ensure frontend receives user data
+            "user_id": g.user_id,  # Ensure frontend receives user data
             "expires_at": expiry
         }), 200)
 
         response.set_cookie(
-            "jwt",
-            token,
-            httponly=True,
+            key="jwt",
+            value=token,
+            expires=expiry,
+            path="/",
             secure=True,
+            httponly=True,
             samesite="None",
-            path="/"
         )
-
         return response
 
     return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
@@ -69,19 +71,25 @@ def login_required(f: Callable) -> Callable:
 @auth_blueprint.route('/verify', methods=['GET'])
 def verify_authenticity() -> tuple[Response, int]:
     """Verifies that the provided token is genuine."""
-    token = request.headers.get("Authorization")
+    token = get_token_from_header(request.headers["Authorization"]
+                                  ) if not request.cookies else request.cookies.get("jwt")
+
+    logger.info(f"auth_routes.verify_authenticity : Token is {token}")
+
     if not token:
+        logger.info("auth_routes.verify_authenticity : No token was provided.")
         return jsonify({"auth": False, "message": "No token provided"}), 401
 
-    print(f"Backend /verify: Token received = {token}")
-
     try:
-        user_id = verify_token(token)  # ✅ Validate JWT
+        user_id = verify_token(token)
     except jwt.ExpiredSignatureError:
+        logger.warning("auth_routes.verify_authenticity : Token is EXPIRED.", exc_info=1)
         return jsonify({"auth": False, "message": "Token expired"}), 401
     except jwt.InvalidTokenError:
+        logger.warning("auth_routes.verify_authenticity : Token is INVALID.", exc_info=1)
         return jsonify({"auth": False, "message": "Invalid token"}), 401
 
+    logger.info("auth_routes.verify_authenticity : Token verification successful.")
     return jsonify({"auth": True, "user_id": user_id}), 200
 
 
@@ -93,7 +101,7 @@ def logout() -> tuple[Response, int]:
                         "",
                         expires=0,
                         httponly=True,
-                        secure=False,
+                        secure=True,
                         samesite=None,
                         path="/")
     return response, 200

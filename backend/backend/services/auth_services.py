@@ -87,3 +87,9 @@ def verify_token(token: str) -> str:
         raise jwt.ExpiredSignatureError("JWT signature expired")
     except jwt.InvalidTokenError:
         raise jwt.InvalidTokenError("JWT is invalid")
+
+
+def get_token_from_header(header: str) -> str | None:
+    if not header or not header.startswith("Bearer "):
+        return None
+    return header[7:]
