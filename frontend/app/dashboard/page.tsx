@@ -21,7 +21,7 @@ interface BudgetItem {
 }
 
 const Dashboard = () => {
-    const auth = useContext(AuthContext); // ✅ Get auth context
+    const auth = useContext(AuthContext); // Get auth context
     const [error, setError] = useState('');
     const [userAlias, setUserAlias] = useState<string | null>(null);
     const [userTransactions, setUserTransactions] = useState<Transaction[]>([]);
@@ -42,9 +42,9 @@ const Dashboard = () => {
     }, []);
 
     useEffect(() => {
-        console.log(`dashboard/page.tsx - useEffect, user_id = ${auth?.user}`)
+        console.log(`dashboard/page.tsx - useEffect, user_id = ${auth?.user?.user_id}`)
         if (auth?.user?.user_id) {
-            fetchUserData(); // ✅ Fetch data only if user is authenticated
+            fetchUserData(); // Fetch data only if user is authenticated
         }
     }, [auth?.user]);
 

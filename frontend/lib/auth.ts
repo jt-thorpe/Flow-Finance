@@ -1,4 +1,4 @@
-import { login as apiLogin, logout as apiLogout } from "../services/authServices";
+import { login as apiLogin, logout as apiLogout, verifyTokenClient as apiVerifyTokenClient } from "../services/authServices";
 
 
 export const handleLogin = async (
@@ -16,7 +16,7 @@ export const handleLogin = async (
 
         console.log("Login successful. User:", data.user_id);
 
-        return true; // ✅ Only return success/failure, middleware will confirm session
+        return true;
     } catch (error) {
         console.error("Login error:", error);
         return false;
@@ -26,7 +26,26 @@ export const handleLogin = async (
 
 export const handleLogout = async (): Promise<void> => {
     console.log("auth/handleLogout: Logging out user...");
-    await apiLogout(); // ✅ Calls backend logout
+    await apiLogout();
 
     console.log("auth/handleLogout: Logout complete.");
 };
+
+
+export const handleAuthRefresh = async (): Promise<string | null> => {
+    console.log("auth/handleRefresh : handling refresh, calling API...")
+
+    try {
+        const data = await apiVerifyTokenClient();
+        if (!data) {
+            console.error("auth/handleRefresh : refresh failed");
+            return null
+        }
+
+        console.log("auth/handleRefresh : refresh success")
+        return data.user_id
+    } catch (error) {
+        console.error("auth.handleAuthRefresh : Error caught", error)
+        return null
+    }
+}

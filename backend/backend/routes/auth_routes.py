@@ -71,8 +71,9 @@ def login_required(f: Callable) -> Callable:
 @auth_blueprint.route('/verify', methods=['GET'])
 def verify_authenticity() -> tuple[Response, int]:
     """Verifies that the provided token is genuine."""
-    token = get_token_from_header(request.headers["Authorization"]
-                                  ) if not request.cookies else request.cookies.get("jwt")
+    token = get_token_from_header(
+        request.headers.get("Authorization")
+    ) if not request.cookies else request.cookies.get("jwt")
 
     logger.info(f"auth_routes.verify_authenticity : Token is {token}")
 

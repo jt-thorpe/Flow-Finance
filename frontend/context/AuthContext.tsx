@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, ReactNode, useMemo, useState } from "react";
-import { login, logout } from "../services/authServices";
+import { createContext, ReactNode, useEffect, useMemo, useState } from "react";
+import { login, logout, verifyTokenClient } from "../services/authServices";
 
 interface AuthContextType {
     user: { user_id: string } | null;
@@ -38,6 +38,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(null);
         setIsAuthenticated(false);
     };
+
+    // Rehydrate the AuthContext on mount
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            try {
+                const userData = await verifyTokenClient()
+                if (userData?.user_id) {
+                    setUser({ user_id: userData.user_id });
+                    setIsAuthenticated(true);
+                }
+            } catch (error) {
+                console.error("Failed to rehydrate auth:", error);
+            }
+        };
+
+        checkAuthStatus();
+    }, []);
 
     const contextValue = useMemo(() => ({
         user,

@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import Navbar from "../../components/ui/NavBar";
-import { useAuth } from "../../context/AuthContext";
+import { AuthContext } from "../../context/AuthContext";
 
 interface BudgetItem {
     category: string;
@@ -14,7 +14,7 @@ interface BudgetItem {
 }
 
 const Budgets = () => {
-    const { isAuthenticated, loading } = useAuth();
+    const auth = useContext(AuthContext);
     const [userBudgetSummary, setUserBudgetSummary] = useState<BudgetItem[]>([]);
     const [isMobile, setIsMobile] = useState(false);
     const [isNavOpen, setIsNavOpen] = useState(false);
@@ -30,10 +30,11 @@ const Budgets = () => {
     }, []);
 
     useEffect(() => {
-        if (!loading && isAuthenticated) {
+        console.log(`budgets/page.tsx - useEffect, user_id = ${auth?.user?.user_id}`)
+        if (auth?.user?.user_id) {
             fetchUserBudgets();
         }
-    }, [loading, isAuthenticated]);
+    }, [auth?.user]);
 
     const fetchUserBudgets = async () => {
         try {
