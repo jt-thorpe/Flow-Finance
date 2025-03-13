@@ -87,21 +87,54 @@ const Budgets = () => {
     );
 };
 
+
+// Client-side modal
+import { useRouter } from "next/router";
+
+function Modal() {
+    const router = useRouter()
+    return (
+        <>
+            <h2>Modal Title</h2>
+            <p>Modal Body</p>
+            <button onClick={() => router.back()}>Close</button>
+        </>
+    );
+}
+
+
+// TODO: Needs moving into components
 const BudgetCard = ({ budget, isMobile }: { budget: Record<string, any>, isMobile: boolean }) => {
-    const data = [
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [editedBudget, setEditedBudget] = useState({ ...budget });
+
+    const handleCardClick = () => setModalOpen(true);
+
+    // Prepare pie chart data and colors
+    const pieData = [
         { name: "Spent", value: budget.spent },
         { name: "Remaining", value: budget.remaining },
     ];
-    const COLORS = ["#FF6B6B", "#4CAF50"];
+    const COLOURS = ["#FF6B6B", "#4CAF50"];
 
     return (
-        <div className={`bg-white p-6 rounded-2xl shadow-md ${isMobile ? 'flex flex-col items-center' : 'flex items-center w-full'}`}>
+        <div className={`relative bg-white p-6 rounded-2xl shadow-md ${isMobile ? 'flex flex-col items-center' : 'flex items-center w-full'}`}>
             <div className={`${isMobile ? 'w-full mb-4 flex justify-center' : 'w-1/4 flex justify-center'}`}>
                 <ResponsiveContainer width={100} height={100}>
                     <PieChart>
-                        <Pie data={data} cx="50%" cy="100%" startAngle={180} endAngle={0} innerRadius={30} outerRadius={45} paddingAngle={2} dataKey="value">
-                            {data.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                        <Pie
+                            data={pieData}
+                            cx="50%"
+                            cy="100%"
+                            startAngle={180}
+                            endAngle={0}
+                            innerRadius={30}
+                            outerRadius={45}
+                            paddingAngle={2}
+                            dataKey="value"
+                        >
+                            {pieData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLOURS[index % COLOURS.length]} />
                             ))}
                         </Pie>
                     </PieChart>
@@ -120,8 +153,87 @@ const BudgetCard = ({ budget, isMobile }: { budget: Record<string, any>, isMobil
                     <li>• There are {0} many scheduled payments remaining for the month.</li>
                 </ul>
             </div>
+            {isModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-6 rounded-md shadow-md w-full max-w-md">
+                        <h2 className="text-2xl font-bold mb-4">Edit Budget</h2>
+                        <form className="flex flex-col gap-4">
+                            <label>
+                                Category:
+                                <input
+                                    type="text"
+                                    name="category"
+                                    value={editedBudget.category}
+                                    onChange={(e) =>
+                                        setEditedBudget({ ...editedBudget, category: e.target.value })
+                                    }
+                                    className="border border-gray-300 p-2 rounded-md w-full"
+                                />
+                            </label>
+                            <label>
+                                Total Amount:
+                                <input
+                                    type="number"
+                                    name="amount"
+                                    value={editedBudget.amount}
+                                    onChange={(e) =>
+                                        setEditedBudget({ ...editedBudget, amount: parseFloat(e.target.value) })
+                                    }
+                                    className="border border-gray-300 p-2 rounded-md w-full"
+                                />
+                            </label>
+                            <label>
+                                Spent:
+                                <input
+                                    type="number"
+                                    name="spent"
+                                    value={editedBudget.spent}
+                                    onChange={(e) =>
+                                        setEditedBudget({ ...editedBudget, spent: parseFloat(e.target.value) })
+                                    }
+                                    className="border border-gray-300 p-2 rounded-md w-full"
+                                />
+                            </label>
+                            <label>
+                                Frequency:
+                                <input
+                                    type="text"
+                                    name="frequency"
+                                    value={editedBudget.frequency}
+                                    onChange={(e) =>
+                                        setEditedBudget({ ...editedBudget, frequency: e.target.value })
+                                    }
+                                    className="border border-gray-300 p-2 rounded-md w-full"
+                                />
+                            </label>
+                            <div className="flex justify-end gap-2">
+                                <button
+                                    type="button"
+                                    className="bg-green-500 text-white px-4 py-2 rounded-md"
+                                    onClick={() => {
+                                        // TODO: Add your save logic here (e.g., API call)
+                                        console.log("Updated Budget", editedBudget);
+                                        setModalOpen(false);
+                                    }}
+                                >
+                                    Save
+                                </button>
+                                <button
+                                    type="button"
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-md"
+                                    onClick={() => setModalOpen(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+            <button onClick={handleCardClick} className="absolute inset-0 w-full h-full opacity-0"></button>
         </div>
     );
 };
+
 
 export default Budgets;
