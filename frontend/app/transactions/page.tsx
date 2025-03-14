@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import Navbar from "../../components/ui/NavBar";
+import TransactionsCard from "../../components/ui/TransactionsCard";
 import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { TransactionModal } from "../../components/ui/transaction_modal";
 import useResponsive from "../../hooks/useResponsive";
 import { fetchTransactions } from "../../services/transactions";
@@ -21,7 +20,7 @@ interface Transaction {
 
 export default function TransactionsPage() {
     const { isMobile, isNavOpen, setIsNavOpen } = useResponsive();
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [userTransactions, setTransactions] = useState<Transaction[]>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(20)
     const [hasMore, setHasMore] = useState<boolean>(true);
@@ -51,32 +50,10 @@ export default function TransactionsPage() {
                         <div className="flex justify-between items-center mb-4">
                             <Button onClick={() => setModalOpen(true)}>Add Transaction</Button>
                         </div>
-                        <Card>
-                            <CardContent>
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow>
-                                            <TableHead>Date</TableHead>
-                                            <TableHead>Amount</TableHead>
-                                            <TableHead>Category</TableHead>
-                                            <TableHead>Frequency</TableHead>
-                                            <TableHead>Description</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {transactions.map((tx) => (
-                                            <TableRow key={tx.id} className={tx.type === "income" ? "text-green-600" : "text-red-600"}>
-                                                <TableCell>{tx.date}</TableCell>
-                                                <TableCell>${tx.amount}</TableCell>
-                                                <TableCell>{tx.category}</TableCell>
-                                                <TableCell>{tx.frequency ?? "-"}</TableCell>
-                                                <TableCell>{tx.description}</TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </CardContent>
-                        </Card>
+                        <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
+                            <h2 className="text-xl font-bold mb-4">Recent Transactions</h2>
+                            <TransactionsCard transactions={userTransactions} />
+                        </section>
                         {hasMore && (
                             <div className="flex justify-center mt-4">
                                 <Button onClick={loadTransactions}>Load More</Button>
