@@ -19,10 +19,6 @@ Flow-Finance is **a work in progress** and **not yet complete**. The application
 
 ---
 
-## License
-
-See license.
-
 ## Credits & Contact
 
 Developed by **Jake Thorpe**\
