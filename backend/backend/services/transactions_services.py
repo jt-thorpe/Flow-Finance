@@ -1,19 +1,42 @@
+from typing import Literal
+
 from backend.extensions import db
 from backend.models.budget_models import Budget
 from backend.models.transaction_models import Transaction
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 
-def get_n_transactions_by(user_id: str, N: int = 10) -> list:
-    """Get N-many recent transactions (both income and expense) for a user.
+def get_n_user_transactions_ordered(
+    user_id: str,
+    N: int = 10,
+    ordered_by: InstrumentedAttribute = Transaction.date,
+    order: Literal["ASC", "DESC"] = "DESC"
+) -> list:
+    """Get a limited number of transactions for a user, ordered by a specified column and direction.
 
     Args:
-        user_id, str: the UUID of the user taken from the JWT token.
-        N, int: the number of transactions to return.
+        user_id (str): The UUID of the user.
+        ordered_by (InstrumentedAttribute): The column to order by (default is Transaction.date).
+        N (int): The number of transactions to return.
+        order (Literal["ASC", "DESC"]): The order direction; "ASC" for ascending or "DESC" (default) for descending.
 
     Returns:
-        list: a list of Transaction objects (Income or Expense).
+        list: A list of Transaction objects ordered by the specified criteria.
     """
-    return db.session.query(Transaction).filter_by(user_id=user_id).limit(limit=N).all()
+    if order.upper() == "ASC":
+        ordering = ordered_by.asc()
+    elif order.upper() == "DESC":
+        ordering = ordered_by.desc()
+    else:
+        raise ValueError("order must be either 'ASC' or 'DESC'")
+
+    return (
+        db.session.query(Transaction)
+        .filter_by(user_id=user_id)
+        .order_by(ordering)
+        .limit(N)
+        .all()
+    )
 
 
 def get_category_totals_by(user_id: str) -> dict[str, float]:
