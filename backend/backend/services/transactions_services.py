@@ -8,9 +8,9 @@ from sqlalchemy.orm.attributes import InstrumentedAttribute
 
 def get_n_user_transactions_ordered(
     user_id: str,
-    N: int = 10,
     ordered_by: InstrumentedAttribute = Transaction.date,
-    order: Literal["ASC", "DESC"] = "DESC"
+    order: Literal["ASC", "DESC"] = "DESC",
+    N: int = 10,
 ) -> list:
     """Get a limited number of transactions for a user, ordered by a specified column and direction.
 
