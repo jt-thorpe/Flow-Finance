@@ -2,44 +2,23 @@
 
 import { useContext, useEffect, useState } from "react";
 import Navbar from '../../components/ui/NavBar';
+import OverviewCard from "../../components/ui/OverviewCard";
 import Table from '../../components/ui/Table';
 import { AuthContext } from "../../context/AuthContext";
+import useResponsive from "../../hooks/useResponsive";
+import BudgetItem from "../types/BudgetItem";
+import Transaction from "../types/Transaction";
 
-interface Transaction {
-    category: string;
-    date: string;
-    amount: number;
-    description: string;
-    type: "income" | "expense";
-}
-
-interface BudgetItem {
-    category: string;
-    amount: number;
-    spent: number;
-    remaining: number;
-}
 
 const Dashboard = () => {
-    const auth = useContext(AuthContext); // Get auth context
+    const auth = useContext(AuthContext);
+    const { isMobile, isNavOpen, setIsNavOpen } = useResponsive();
     const [error, setError] = useState('');
     const [userAlias, setUserAlias] = useState<string | null>(null);
     const [userTransactions, setUserTransactions] = useState<Transaction[]>([]);
     const [userIncomesTotal, setUserIncomesTotal] = useState<number | null>(null);
     const [userExpensesTotal, setUserExpensesTotal] = useState<number | null>(null);
     const [userBudgetSummary, setUserBudgetSummary] = useState<BudgetItem[]>([]);
-    const [isMobile, setIsMobile] = useState(false);
-    const [isNavOpen, setIsNavOpen] = useState(false);
-
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-            if (window.innerWidth >= 768) setIsNavOpen(false);
-        };
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     useEffect(() => {
         console.log(`dashboard/page.tsx - useEffect, user_id = ${auth?.user?.user_id}`)
@@ -108,7 +87,14 @@ const Dashboard = () => {
                     {/* Budget Summary */}
                     <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
                         <h2 className="text-xl font-bold mb-4">Budget Summary</h2>
-                        <Table headers={["Category", "Budget", "Spent", "Remaining"]} data={userBudgetSummary.map(budget => [budget.category, `£${budget.amount.toFixed(2)}`, `£${budget.spent.toFixed(2)}`, `£${budget.remaining.toFixed(2)}`])} />
+                        <Table headers={["Category", "Amount", "Spent", "Remaining", "Frequency"]}
+                            data={userBudgetSummary.map(budget => [
+                                budget.category,
+                                `£${budget.amount.toFixed(2)}`,
+                                `£${budget.spent.toFixed(2)}`,
+                                `£${budget.remaining.toFixed(2)}`,
+                                `${budget.frequency}`
+                            ])} />
                     </section>
 
                     {/* Recent Transactions */}
@@ -127,12 +113,5 @@ const Dashboard = () => {
     );
 };
 
-
-const OverviewCard = ({ title, amount, color }: { title: string; amount: number | null; color: string }) => (
-    <div className="bg-white p-6 rounded-2xl shadow-md text-center">
-        <h2 className="text-lg font-semibold">{title}</h2>
-        <p className={`text-xl font-bold ${color}`}>£{(amount ?? 0).toFixed(2)}</p>
-    </div>
-);
 
 export default Dashboard;

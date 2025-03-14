@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Navbar from "../../components/ui/NavBar";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table";
 import { TransactionModal } from "../../components/ui/transaction_modal";
+import useResponsive from "../../hooks/useResponsive";
 import { fetchTransactions } from "../../services/transactions";
 
 interface Transaction {
@@ -19,24 +20,12 @@ interface Transaction {
 }
 
 export default function TransactionsPage() {
+    const { isMobile, isNavOpen, setIsNavOpen } = useResponsive();
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [page, setPage] = useState<number>(1);
     const [limit, setLimit] = useState<number>(20)
     const [hasMore, setHasMore] = useState<boolean>(true);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
-    const [isMobile, setIsMobile] = useState(false);
-    const [isNavOpen, setIsNavOpen] = useState(false);
-
-    useEffect(() => {
-        loadTransactions();
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-            if (window.innerWidth >= 768) setIsNavOpen(false);
-        };
-        handleResize();
-        window.addEventListener("resize", handleResize);
-        return () => window.removeEventListener("resize", handleResize);
-    }, []);
 
     const loadTransactions = async () => {
         const response = await fetchTransactions(page.toString(), limit.toString());
