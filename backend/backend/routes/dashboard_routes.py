@@ -1,3 +1,5 @@
+import json
+
 from backend.routes.auth_routes import login_required
 from backend.services.cache_services import (cache_user_with_associations,
                                              get_user_cache)
@@ -29,5 +31,7 @@ def load_dashboard() -> tuple[Response, int]:
 
     print("dashboard_routes.load_dashboard : user_data returned from cache")
     computed_dashboard_data = compute_dashboard(user_data=user_data)
+    print("JSON Dashboard dump", json.dumps(computed_dashboard_data, indent=4))
+    print(type(computed_dashboard_data["user_latest_transactions"][3]["frequency"]))
 
     return jsonify(computed_dashboard_data), 200

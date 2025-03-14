@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
-import BudgetItem from "../../app/types/BudgetItem";
+import BudgetItem from "../../types/BudgetItem";
 import EditBudgetModal from "./EditBudgetModal";
 
 const BudgetCard = ({

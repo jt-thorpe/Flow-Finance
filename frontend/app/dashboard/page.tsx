@@ -6,8 +6,8 @@ import OverviewCard from "../../components/ui/OverviewCard";
 import Table from '../../components/ui/Table';
 import { AuthContext } from "../../context/AuthContext";
 import useResponsive from "../../hooks/useResponsive";
-import BudgetItem from "../types/BudgetItem";
-import Transaction from "../types/Transaction";
+import BudgetItem from "../../types/BudgetItem";
+import Transaction from "../../types/Transaction";
 
 
 const Dashboard = () => {
@@ -100,11 +100,12 @@ const Dashboard = () => {
                     {/* Recent Transactions */}
                     <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl mt-6">
                         <h2 className="text-xl font-bold mb-4">Recent Transactions</h2>
-                        <Table headers={["Date", "Amount", "Category", "Description"]} data={userTransactions.map(transaction => [
+                        <Table headers={["Date", "Amount", "Category", "Frequency", "Description"]} data={userTransactions.map(transaction => [
                             transaction.date,
                             <span key={transaction.date} className={transaction.type === "income" ? "text-green-500" : "text-red-500"}>£{transaction.amount.toFixed(2)}</span>,
                             transaction.category,
-                            transaction.description
+                            transaction.frequency,
+                            transaction.description,
                         ])} />
                     </section>
                 </div>

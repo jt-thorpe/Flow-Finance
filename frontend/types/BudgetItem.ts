@@ -1,5 +1,5 @@
 interface BudgetItem {
-    id: number; // Ideally a unique ID for each budget.
+    id: string;
     category: string;
     amount: number;
     spent: number;

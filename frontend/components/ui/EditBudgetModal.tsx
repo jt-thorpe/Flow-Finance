@@ -1,5 +1,5 @@
 import { useState } from "react";
-import BudgetItem from "../../app/types/BudgetItem";
+import BudgetItem from "../../types/BudgetItem";
 
 
 const EditBudgetModal = ({

@@ -20,6 +20,7 @@ def create_budget_summary(user_id: str) -> list[dict]:
     return [
         {
             'category': budget.category.value,
+            'frequency': budget.frequency.value,
             'amount': budget.amount,
             'spent': budgets_category_totals.get(budget.category.value, 0),
             'remaining': budget.amount - budgets_category_totals.get(budget.category.value, 0)

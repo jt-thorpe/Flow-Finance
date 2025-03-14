@@ -7,7 +7,7 @@ import BudgetControls from "../../components/ui/BudgetControlBar";
 import Navbar from "../../components/ui/NavBar";
 import { AuthContext } from "../../context/AuthContext";
 import useResponsive from "../../hooks/useResponsive";
-import BudgetItem from "../types/BudgetItem";
+import BudgetItem from "../../types/BudgetItem";
 
 
 const Budgets = () => {
