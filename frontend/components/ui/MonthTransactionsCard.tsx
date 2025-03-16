@@ -12,7 +12,7 @@ const MonthTransactionsCard: React.FC<MonthTransactionsCardProps> = ({ month, tr
     const transactionsByDay = groupByDay(transactions);
 
     return (
-        <div className="month-card bg-white shadow-md rounded-xl p-4 mb-6">
+        <div className="month-card border border-fixed border-black bg-blue-400 shadow-md rounded-xl p-4 mb-6">
             <h2 className="text-2xl font-bold mb-4">{month}</h2>
             {Object.keys(transactionsByDay).map(day => (
                 <DayTransactionsCard key={day} day={day} transactions={transactionsByDay[day]} />
