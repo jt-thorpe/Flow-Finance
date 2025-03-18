@@ -1,3 +1,8 @@
+"""Credit to James Murphy at mCoding.
+
+Reference: https://github.com/mCodingLLC/VideosSampleCode/tree/master/videos/135_modern_logging
+"""
+
 import datetime as dt
 import json
 import logging
