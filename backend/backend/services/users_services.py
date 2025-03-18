@@ -1,10 +1,9 @@
 from typing import Dict
 
-from sqlalchemy.exc import IntegrityError, SQLAlchemyError
-from sqlalchemy.orm import joinedload
-
 from backend.extensions import db
 from backend.models.user_models import User
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
+from sqlalchemy.orm import joinedload
 
 
 def is_taken(email: str) -> bool:
@@ -52,8 +51,7 @@ def get_user_with_associations(user_id: str) -> User:
         User: the User object with associated data such as incomes, expenses, and budgets.
     """
     return User.query.options(
-        joinedload(User.transactions),
-        joinedload(User.budgets)
+        joinedload(User.transactions), joinedload(User.budgets)
     ).get(user_id)
 
 
@@ -70,5 +68,5 @@ def serialise_user_associations(user: User) -> Dict:
         "id": str(user.id),
         "alias": user.alias,
         "transactions": [transaction.to_dict() for transaction in user.transactions],
-        "budgets": [budget.to_dict() for budget in user.budgets]
+        "budgets": [budget.to_dict() for budget in user.budgets],
     }

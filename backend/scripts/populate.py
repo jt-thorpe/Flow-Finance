@@ -1,23 +1,22 @@
 import os
 from datetime import timedelta
 
-from sqlalchemy import select, text
-
-from backend.core.app import app
-from backend.core.extensions import db
+from backend.app import app
 from backend.enums.transaction_enums import Frequency, TransactionCategory
+from backend.extensions import db
 from backend.models.budget_models import Budget
 from backend.models.transaction_models import Transaction, TransactionType
 from backend.models.user_models import User
 from backend.services.auth_services import hash_password
+from sqlalchemy import select, text
 
 """A script to populate the database with test data."""
 
 # Flask app configuration
-app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']  # for session
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['FLOW_DB_URI']  # for PSQL
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config["SECRET_KEY"] = os.environ["FLASK_SECRET_KEY"]  # for session
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["FLOW_DB_URI"]  # for PSQL
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
 
 def reset_database():
@@ -39,7 +38,9 @@ def add_test_user():
     """Adds a test user to the database."""
     print("Adding test user...")
     h_password = hash_password("password")
-    test_user = User(email="example@mail.com", password=h_password, alias="Captain Test")
+    test_user = User(
+        email="example@mail.com", password=h_password, alias="Captain Test"
+    )
     db.session.add(test_user)
     db.session.commit()
     print("Test user added.")
@@ -55,20 +56,24 @@ def get_test_user_id():
 
 def add_test_income(test_user_id):
     print("Adding test income data...")
-    test_income_1 = Transaction(user_id=test_user_id,
-                                type=TransactionType.INCOME,
-                                category=TransactionCategory.SALARY,
-                                date="2021-01-01",
-                                frequency=Frequency.MONTHLY,
-                                amount=2000,
-                                description="An example of some income")
-    test_income_2 = Transaction(user_id=test_user_id,
-                                type=TransactionType.INCOME,
-                                category=TransactionCategory.INTEREST,
-                                date="2021-01-01",
-                                frequency=Frequency.ANNUALLY,
-                                amount=100,
-                                description="An example of some interest")
+    test_income_1 = Transaction(
+        user_id=test_user_id,
+        type=TransactionType.INCOME,
+        category=TransactionCategory.SALARY,
+        date="2021-01-01",
+        frequency=Frequency.MONTHLY,
+        amount=2000,
+        description="An example of some income",
+    )
+    test_income_2 = Transaction(
+        user_id=test_user_id,
+        type=TransactionType.INCOME,
+        category=TransactionCategory.INTEREST,
+        date="2021-01-01",
+        frequency=Frequency.ANNUALLY,
+        amount=100,
+        description="An example of some interest",
+    )
     db.session.add(test_income_1)
     db.session.add(test_income_2)
     db.session.commit()
@@ -77,30 +82,38 @@ def add_test_income(test_user_id):
 
 def add_test_expense(test_user_id):
     print("Adding test expense data...")
-    test_expense_1 = Transaction(user_id=test_user_id,
-                                 type=TransactionType.EXPENSE,
-                                 amount=100,
-                                 description="Test transaction 1",
-                                 date="2021-01-01",
-                                 category=TransactionCategory.RENT)
-    test_expense_2 = Transaction(user_id=test_user_id,
-                                 type=TransactionType.EXPENSE,
-                                 amount=50,
-                                 description="Test transaction 2",
-                                 date="2021-01-02",
-                                 category=TransactionCategory.MORTGAGE)
-    test_expense_3 = Transaction(user_id=test_user_id,
-                                 type=TransactionType.EXPENSE,
-                                 amount=75.25,
-                                 description="Test transaction 3",
-                                 date="2021-01-03",
-                                 category=TransactionCategory.UTILITIES)
-    test_expense_4 = Transaction(user_id=test_user_id,
-                                 type=TransactionType.EXPENSE,
-                                 amount=33,
-                                 description="Test transaction 4",
-                                 date="2021-01-04",
-                                 category=TransactionCategory.UTILITIES)
+    test_expense_1 = Transaction(
+        user_id=test_user_id,
+        type=TransactionType.EXPENSE,
+        amount=100,
+        description="Test transaction 1",
+        date="2021-01-01",
+        category=TransactionCategory.RENT,
+    )
+    test_expense_2 = Transaction(
+        user_id=test_user_id,
+        type=TransactionType.EXPENSE,
+        amount=50,
+        description="Test transaction 2",
+        date="2021-01-02",
+        category=TransactionCategory.MORTGAGE,
+    )
+    test_expense_3 = Transaction(
+        user_id=test_user_id,
+        type=TransactionType.EXPENSE,
+        amount=75.25,
+        description="Test transaction 3",
+        date="2021-01-03",
+        category=TransactionCategory.UTILITIES,
+    )
+    test_expense_4 = Transaction(
+        user_id=test_user_id,
+        type=TransactionType.EXPENSE,
+        amount=33,
+        description="Test transaction 4",
+        date="2021-01-04",
+        category=TransactionCategory.UTILITIES,
+    )
     db.session.add(test_expense_1)
     db.session.add(test_expense_2)
     db.session.add(test_expense_3)
@@ -111,18 +124,24 @@ def add_test_expense(test_user_id):
 
 def add_test_budgets(test_user_id):
     print("Adding test budget data...")
-    test_budget_1 = Budget(user_id=test_user_id,
-                           category=TransactionCategory.RENT,
-                           frequency=Frequency.MONTHLY,
-                           amount=500.50)
-    test_budget_2 = Budget(user_id=test_user_id,
-                           category=TransactionCategory.MORTGAGE,
-                           frequency=Frequency.MONTHLY,
-                           amount=300.33)
-    test_budget_3 = Budget(user_id=test_user_id,
-                           category=TransactionCategory.UTILITIES,
-                           frequency=Frequency.FOUR_WEEKLY,
-                           amount=200)
+    test_budget_1 = Budget(
+        user_id=test_user_id,
+        category=TransactionCategory.RENT,
+        frequency=Frequency.MONTHLY,
+        amount=500.50,
+    )
+    test_budget_2 = Budget(
+        user_id=test_user_id,
+        category=TransactionCategory.MORTGAGE,
+        frequency=Frequency.MONTHLY,
+        amount=300.33,
+    )
+    test_budget_3 = Budget(
+        user_id=test_user_id,
+        category=TransactionCategory.UTILITIES,
+        frequency=Frequency.FOUR_WEEKLY,
+        amount=200,
+    )
     db.session.add(test_budget_1)
     db.session.add(test_budget_2)
     db.session.add(test_budget_3)

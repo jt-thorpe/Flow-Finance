@@ -51,8 +51,9 @@ def get_category_totals_by(user_id: str) -> dict[str, float]:
     # TODO: a VIEW is potentially better here, no built-in SQLAlchemy support however
 
     category_totals = (
-        db.session.query(Transaction.category, db.func.sum(Transaction.amount).cast(
-            db.Float))  # Not entirely sure why need to cast back to float
+        db.session.query(
+            Transaction.category, db.func.sum(Transaction.amount).cast(db.Float)
+        )  # Not entirely sure why need to cast back to float
         .filter(Transaction.user_id == user_id)
         .group_by(Transaction.category)
         .all()
@@ -70,10 +71,6 @@ def get_budgets_by(user_id: str) -> list[Budget]:
     Returns:
         list[Budget]: a list of Budget objects.
     """
-    budgets = (
-        db.session.query(Budget)
-        .where(Budget.user_id == user_id)
-        .all()
-    )
+    budgets = db.session.query(Budget).where(Budget.user_id == user_id).all()
 
     return budgets

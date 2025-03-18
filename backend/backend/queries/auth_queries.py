@@ -1,11 +1,9 @@
-
 from typing import Final
 
 from argon2 import PasswordHasher
-from sqlalchemy import select
-
 from backend.extensions import db
 from backend.models.user_models import User
+from sqlalchemy import select
 
 PH: Final[PasswordHasher] = PasswordHasher()
 

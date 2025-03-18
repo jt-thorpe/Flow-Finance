@@ -8,6 +8,7 @@ class TransactionType(enum.Enum):
 
 class TransactionCategory(enum.Enum):
     """Represents possible categories for a user's transactions."""
+
     # INCOME
     SALARY = "Salary"
     INTEREST = "Interest"

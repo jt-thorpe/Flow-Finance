@@ -15,20 +15,24 @@ from flask_cors import CORS
 setup_logging()
 
 
-app = Flask(__name__,
-            template_folder='/app/frontend/templates/',
-            static_folder='/app/frontend/static/')  # prepend /app/ for Docker
+app = Flask(
+    __name__,
+    template_folder="/app/frontend/templates/",
+    static_folder="/app/frontend/static/",
+)  # prepend /app/ for Docker
 
-CORS(app,
-     resources={r"/api/*": {"origins": "https://localhost:3000"}},
-     supports_credentials=True)
+CORS(
+    app,
+    resources={r"/api/*": {"origins": "https://localhost:3000"}},
+    supports_credentials=True,
+)
 
 
 # Flask app configuration
-app.config['SECRET_KEY'] = os.environ['FLASK_SECRET_KEY']  # for session
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['FLOW_DB_URI']  # for PSQL
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+app.config["SECRET_KEY"] = os.environ["FLASK_SECRET_KEY"]  # for session
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["FLOW_DB_URI"]  # for PSQL
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(minutes=30)
 
 
 # Initialise the database
@@ -45,7 +49,9 @@ app.register_blueprint(transactions_blueprint)
 app.register_blueprint(users_blueprint)
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0',
-            debug=True,
-            ssl_context=('certs/localhost.pem', 'certs/localhost-key.pem'))
+if __name__ == "__main__":
+    app.run(
+        host="0.0.0.0",
+        debug=True,
+        ssl_context=("certs/localhost.pem", "certs/localhost-key.pem"),
+    )

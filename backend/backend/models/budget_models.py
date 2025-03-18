@@ -27,22 +27,21 @@ class Budget(db.Model):
     Relationships:
         user: The user to whom the budget belongs.
     """
+
     __tablename__ = "budget"
 
-    id: uuid.UUID = db.Column(UUID(as_uuid=True),
-                              primary_key=True,
-                              unique=True,
-                              server_default=text(GEN_RANDOM_UUID))
-    user_id: uuid.UUID = db.Column(ForeignKey(USER_ACCOUNT_ID),
-                                   nullable=False)
-    category: TransactionCategory = db.Column(Enum(TransactionCategory),
-                                              nullable=False,
-                                              unique=True)
-    frequency: Frequency = db.Column(Enum(Frequency),
-                                     nullable=False)
-    _amount: int = db.Column("amount",
-                             db.Integer,
-                             nullable=False)
+    id: uuid.UUID = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        unique=True,
+        server_default=text(GEN_RANDOM_UUID),
+    )
+    user_id: uuid.UUID = db.Column(ForeignKey(USER_ACCOUNT_ID), nullable=False)
+    category: TransactionCategory = db.Column(
+        Enum(TransactionCategory), nullable=False, unique=True
+    )
+    frequency: Frequency = db.Column(Enum(Frequency), nullable=False)
+    _amount: int = db.Column("amount", db.Integer, nullable=False)
 
     user = db.relationship("User", back_populates="budgets")
 
@@ -63,11 +62,16 @@ class Budget(db.Model):
         # TODO: Add support for date ranges i.e. a monthly budget only looks at expenses for dates in that month.
         # TODO: Add support for not hitting db everytime, but checking cache first
         """
-        return (db.session.query(db.func.sum(Transaction._amount))
-                .filter(Transaction.user_id == self.user_id,
-                        Transaction.type == TransactionType.EXPENSE,
-                        Transaction.category == self.category)
-                .scalar() or 0) / 100
+        return (
+            db.session.query(db.func.sum(Transaction._amount))
+            .filter(
+                Transaction.user_id == self.user_id,
+                Transaction.type == TransactionType.EXPENSE,
+                Transaction.category == self.category,
+            )
+            .scalar()
+            or 0
+        ) / 100
 
     @hybrid_property
     def remaining(self) -> float:
@@ -89,5 +93,5 @@ class Budget(db.Model):
             "frequency": self.frequency.value if self.frequency else None,
             "amount": self.amount,
             "spent": self.spent,
-            "remaining": self.remaining
+            "remaining": self.remaining,
         }

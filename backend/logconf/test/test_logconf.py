@@ -18,7 +18,7 @@ def fmt_keys():
         "module": "module",
         "function": "funcName",
         "line": "lineno",
-        "thread_name": "threadName"
+        "thread_name": "threadName",
     }
 
 
@@ -122,7 +122,7 @@ def test_non_error_filter_allows(non_error_filter, level):
         lineno=1,
         msg="Test message",
         args=(),
-        exc_info=None
+        exc_info=None,
     )
     assert non_error_filter.filter(record) is True
 
@@ -136,6 +136,6 @@ def test_non_error_filter_blocks(non_error_filter, level):
         lineno=1,
         msg="Test message",
         args=(),
-        exc_info=None
+        exc_info=None,
     )
     assert non_error_filter.filter(record) is False

@@ -1,15 +1,13 @@
 import uuid
 from typing import Final, Optional
 
+from backend.enums.frequency_enums import Frequency
+from backend.enums.transaction_enums import TransactionCategory, TransactionType
+from backend.extensions import db
 from sqlalchemy import Date, Enum, ForeignKey, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import text
-
-from backend.enums.frequency_enums import Frequency
-from backend.enums.transaction_enums import (TransactionCategory,
-                                             TransactionType)
-from backend.extensions import db
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 USER_ACCOUNT_ID: Final[str] = "user_account.id"
@@ -30,28 +28,23 @@ class Transaction(db.Model):
     Relationships:
         user: The user to whom the income belongs.
     """
+
     __tablename__ = "transaction"
 
     # Columns
-    id: uuid.UUID = db.Column(UUID(as_uuid=True),
-                              primary_key=True,
-                              unique=True,
-                              server_default=text(GEN_RANDOM_UUID))
-    user_id: uuid.UUID = db.Column(ForeignKey(USER_ACCOUNT_ID),
-                                   nullable=False)
-    type: TransactionType = db.Column(Enum(TransactionType),
-                                      nullable=False)
-    category: TransactionCategory = db.Column(Enum(TransactionCategory),
-                                              nullable=False)
-    date: Date = db.Column(db.Date,
-                           nullable=False)
-    frequency: Frequency = db.Column(Enum(Frequency),
-                                     nullable=True)
-    _amount: int = db.Column("amount",
-                             db.Integer,
-                             nullable=False)
-    description: Optional[str] = db.Column(String(100),
-                                           nullable=True)
+    id: uuid.UUID = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        unique=True,
+        server_default=text(GEN_RANDOM_UUID),
+    )
+    user_id: uuid.UUID = db.Column(ForeignKey(USER_ACCOUNT_ID), nullable=False)
+    type: TransactionType = db.Column(Enum(TransactionType), nullable=False)
+    category: TransactionCategory = db.Column(Enum(TransactionCategory), nullable=False)
+    date: Date = db.Column(db.Date, nullable=False)
+    frequency: Frequency = db.Column(Enum(Frequency), nullable=True)
+    _amount: int = db.Column("amount", db.Integer, nullable=False)
+    description: Optional[str] = db.Column(String(100), nullable=True)
 
     @hybrid_property
     def amount(self) -> float:
@@ -82,5 +75,5 @@ class Transaction(db.Model):
             "date": str(self.date),
             "frequency": self.frequency.value if self.frequency else None,
             "amount": self.amount,
-            "description": self.description
+            "description": self.description,
         }

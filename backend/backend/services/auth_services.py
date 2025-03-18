@@ -6,8 +6,7 @@ from typing import Callable, Final
 
 import jwt
 from argon2 import PasswordHasher
-from argon2.exceptions import (InvalidHashError, VerificationError,
-                               VerifyMismatchError)
+from argon2.exceptions import InvalidHashError, VerificationError, VerifyMismatchError
 from backend.extensions import logger
 from backend.queries.auth_queries import get_user_by
 from flask import g, jsonify, request
@@ -69,11 +68,11 @@ def generate_token(user_id: uuid.UUID) -> tuple[str, int]:
     expiry_time = datetime.datetime.now() + datetime.timedelta(minutes=60)
 
     payload = {
-        'user_id': str(user_id),
-        'exp': expiry_time,
-        'iat': datetime.datetime.now()
+        "user_id": str(user_id),
+        "exp": expiry_time,
+        "iat": datetime.datetime.now(),
     }
-    token = jwt.encode(payload, os.environ["JWT_SECRET_KEY"], algorithm='HS256')
+    token = jwt.encode(payload, os.environ["JWT_SECRET_KEY"], algorithm="HS256")
 
     return token, int(expiry_time.timestamp())
 
@@ -83,7 +82,9 @@ def verify_token(token: str) -> str:
         raise ValueError("JWT is missing")
 
     try:
-        decoded_token = jwt.decode(token, os.environ["JWT_SECRET_KEY"], algorithms=["HS256"])
+        decoded_token = jwt.decode(
+            token, os.environ["JWT_SECRET_KEY"], algorithms=["HS256"]
+        )
         return decoded_token["user_id"]
     except jwt.ExpiredSignatureError:
         raise jwt.ExpiredSignatureError()
@@ -102,24 +103,27 @@ def login_required(f: Callable) -> Callable:
 
     If the token is valid, it sets Flask session `g.user_id` with the user's UUID.
     """
+
     @wraps(f)
     def decorated_function(*args, **kwargs):
         token = request.cookies.get("jwt")
         if not token:
             logger.info("No token to authenticate.")
-            return jsonify({'auth': False, 'message': 'No token present.'}), 401
+            return jsonify({"auth": False, "message": "No token present."}), 401
 
         try:
             user_id = verify_token(token)
             if not user_id:
-                logger.warning("Bad Authentication. No `user_id` returned by verify_token().")
-                return jsonify({'auth': False, 'message': 'Bad authentication.'}), 401
+                logger.warning(
+                    "Bad Authentication. No `user_id` returned by verify_token()."
+                )
+                return jsonify({"auth": False, "message": "Bad authentication."}), 401
         except jwt.ExpiredSignatureError as e:
             logger.info(e)
-            return jsonify({'auth': False, 'message': 'Session expired.'}), 401
+            return jsonify({"auth": False, "message": "Session expired."}), 401
         except jwt.InvalidSignatureError as e:
             logger.warning(e)
-            return jsonify({'auth': False, 'message': 'Invalid token.'}), 401
+            return jsonify({"auth": False, "message": "Invalid token."}), 401
 
         g.user_id = user_id
         return f(*args, **kwargs)

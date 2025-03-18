@@ -25,9 +25,11 @@ def cache_user_with_associations(user: User) -> None:
         print(f"{__name__} - serialised_user = {serialised_user}")
 
         user_data = {
-            "meta": json.dumps({"id": serialised_user['id'], "alias": serialised_user['alias']}),
-            "transactions": json.dumps(serialised_user['transactions']),
-            "budgets": json.dumps(serialised_user['budgets'])
+            "meta": json.dumps(
+                {"id": serialised_user["id"], "alias": serialised_user["alias"]}
+            ),
+            "transactions": json.dumps(serialised_user["transactions"]),
+            "budgets": json.dumps(serialised_user["budgets"]),
         }
 
         # print(f"{__name__} - caching user_data = {user_data}")

@@ -1,11 +1,10 @@
 import uuid
 from typing import Dict, Final
 
+from backend.extensions import db
 from sqlalchemy import text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.sql import text
-
-from backend.extensions import db
 
 GEN_RANDOM_UUID: Final[str] = "gen_random_uuid()"
 
@@ -24,19 +23,18 @@ class User(db.Model):
         expenses: The user's financial expenses.
         budgets: The user's budgets.
     """
+
     __tablename__ = "user_account"
 
-    id: uuid.UUID = db.Column(UUID(as_uuid=True),
-                              primary_key=True,
-                              unique=True,
-                              server_default=text(GEN_RANDOM_UUID))
-    email: str = db.Column(db.String(100),
-                           unique=True,
-                           nullable=False)
-    password: str = db.Column(db.String(100),
-                              nullable=False)
-    alias: str = db.Column(db.String(30),
-                           nullable=False)
+    id: uuid.UUID = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        unique=True,
+        server_default=text(GEN_RANDOM_UUID),
+    )
+    email: str = db.Column(db.String(100), unique=True, nullable=False)
+    password: str = db.Column(db.String(100), nullable=False)
+    alias: str = db.Column(db.String(30), nullable=False)
 
     transactions = db.relationship("Transaction", back_populates="user")
     budgets = db.relationship("Budget", back_populates="user")
@@ -45,6 +43,8 @@ class User(db.Model):
         """Returns the User object and it's related data in a JSON serialisable format."""
         return {
             "meta": {"id": str(self.id), "alias": self.alias},
-            "transactions": [transaction.to_dict() for transaction in self.transactions],
+            "transactions": [
+                transaction.to_dict() for transaction in self.transactions
+            ],
             "budgets": [budget.to_dict() for budget in self.budgets],
         }

@@ -29,7 +29,7 @@ def client(app):
 
 def test_login_missing_fields(client):
     # Missing email and password should return 400
-    response = client.post('/api/auth/login', json={})
+    response = client.post("/api/auth/login", json={})
     assert response.status_code == 400
     data = response.get_json()
     assert data["message"] == "Missing email or password"
@@ -37,11 +37,12 @@ def test_login_missing_fields(client):
 
 def test_login_invalid_credentials(client, monkeypatch):
     # Override authenticate to simulate invalid credentials (return False)
-    monkeypatch.setattr("backend.routes.auth_routes.authenticate", lambda email, password: False)
+    monkeypatch.setattr(
+        "backend.routes.auth_routes.authenticate", lambda email, password: False
+    )
 
     response = client.post(
-        '/api/auth/login',
-        json={"email": "user@example.com", "password": "wrongpass"}
+        "/api/auth/login", json={"email": "user@example.com", "password": "wrongpass"}
     )
     assert response.status_code == 401
     data = response.get_json()
@@ -57,16 +58,19 @@ def test_login_success(client, monkeypatch):
     # Override authenticate to simulate a valid login and set g.user_id
     def fake_authenticate(email, password):
         from flask import g
+
         g.user_id = fake_user_id
         return True
 
     monkeypatch.setattr("backend.routes.auth_routes.authenticate", fake_authenticate)
     # Override generate_token to return our fake token and expiry
-    monkeypatch.setattr("backend.routes.auth_routes.generate_token", lambda user_id: (fake_token, fake_expiry))
+    monkeypatch.setattr(
+        "backend.routes.auth_routes.generate_token",
+        lambda user_id: (fake_token, fake_expiry),
+    )
 
     response = client.post(
-        '/api/auth/login',
-        json={"email": "user@example.com", "password": "correctpass"}
+        "/api/auth/login", json={"email": "user@example.com", "password": "correctpass"}
     )
     assert response.status_code == 200
     data = response.get_json()
@@ -85,14 +89,16 @@ def test_login_success(client, monkeypatch):
 
 
 def test_logout(client):
-    response = client.post('/api/auth/logout')
+    response = client.post("/api/auth/logout")
     assert response.status_code == 200
     data = response.get_json()
     assert data["message"] == "Logged out"
     # Verify that the jwt cookie is cleared (cookie value empty and expires=0)
     set_cookie = response.headers.get("Set-Cookie")
     assert "jwt=" in set_cookie
-    assert "Expires=Thu, 01 Jan 1970 00:00:00 GMT" in set_cookie  # Flask default past date
+    assert (
+        "Expires=Thu, 01 Jan 1970 00:00:00 GMT" in set_cookie
+    )  # Flask default past date
 
 
 ####################
@@ -102,7 +108,7 @@ def test_logout(client):
 
 def test_verify_no_token(client):
     # When no token is provided, the endpoint should return 401
-    response = client.get('/api/auth/verify')
+    response = client.get("/api/auth/verify")
     assert response.status_code == 401
 
     data = response.get_json()
@@ -119,7 +125,7 @@ def test_verify_token_expired(client, monkeypatch):
 
     with client:
         client.set_cookie(key="jwt", value="expiredtoken", expires=datetime.now())
-        response = client.get('/api/auth/verify')
+        response = client.get("/api/auth/verify")
     assert response.status_code == 401
 
     data = response.get_json()
@@ -136,7 +142,7 @@ def test_verify_token_invalid(client, monkeypatch):
 
     with client:
         client.set_cookie(key="jwt", value="invalidtoken", expires=datetime.now())
-        response = client.get('/api/auth/verify')
+        response = client.get("/api/auth/verify")
     assert response.status_code == 401
 
     data = response.get_json()
@@ -147,11 +153,13 @@ def test_verify_token_invalid(client, monkeypatch):
 def test_verify_success(client, monkeypatch):
     fake_user_id = "user123"
     # Override verify_token to return a fake user_id
-    monkeypatch.setattr("backend.routes.auth_routes.verify_token", lambda token: fake_user_id)
+    monkeypatch.setattr(
+        "backend.routes.auth_routes.verify_token", lambda token: fake_user_id
+    )
 
     with client:
         client.set_cookie(key="jwt", value="validtoken", expires=datetime.now())
-        response = client.get('/api/auth/verify')
+        response = client.get("/api/auth/verify")
     assert response.status_code == 200
 
     data = response.get_json()

@@ -48,7 +48,9 @@ def test_login_requried_no_user_id(client, monkeypatch):
         """Simulates verify_token returning an empty string."""
         return ""
 
-    monkeypatch.setattr("backend.services.auth_services.verify_token", empty_verify_token)
+    monkeypatch.setattr(
+        "backend.services.auth_services.verify_token", empty_verify_token
+    )
 
     client.set_cookie(key="jwt", value="validtoken", expires=datetime.now())
     response = client.get("/protected")
@@ -63,11 +65,13 @@ def test_login_requried_expired_token(client, monkeypatch):
     def expired_verify_token(token):
         raise jwt.ExpiredSignatureError()
 
-    monkeypatch.setattr("backend.services.auth_services.verify_token", expired_verify_token)
+    monkeypatch.setattr(
+        "backend.services.auth_services.verify_token", expired_verify_token
+    )
 
     with client:
         client.set_cookie(key="jwt", value="expiredtoken", expires=datetime.now())
-        response = client.get('/protected')
+        response = client.get("/protected")
     assert response.status_code == 401
 
     data = response.get_json()
@@ -79,11 +83,13 @@ def test_login_requried_invalid_token(client, monkeypatch):
     def invalid_verify_token(token):
         raise jwt.InvalidSignatureError()
 
-    monkeypatch.setattr("backend.services.auth_services.verify_token", invalid_verify_token)
+    monkeypatch.setattr(
+        "backend.services.auth_services.verify_token", invalid_verify_token
+    )
 
     with client:
         client.set_cookie(key="jwt", value="invalidtoken", expires=datetime.now())
-        response = client.get('/protected')
+        response = client.get("/protected")
     assert response.status_code == 401
 
     data = response.get_json()
@@ -93,7 +99,9 @@ def test_login_requried_invalid_token(client, monkeypatch):
 
 def test_protected_route_valid_token(client, monkeypatch):
     fake_user_id = "user123"
-    monkeypatch.setattr("backend.services.auth_services.verify_token", lambda token: fake_user_id)
+    monkeypatch.setattr(
+        "backend.services.auth_services.verify_token", lambda token: fake_user_id
+    )
 
     with client:
         client.set_cookie(key="jwt", value="validtoken", expires=datetime.now())
