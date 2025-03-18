@@ -1,6 +1,6 @@
 import json
 
-from backend.routes.auth_routes import login_required
+from backend.services.auth_services import login_required
 from backend.services.cache_services import (cache_user_with_associations,
                                              get_user_cache)
 from backend.services.dashboard_services import compute_dashboard

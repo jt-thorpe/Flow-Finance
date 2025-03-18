@@ -1,6 +1,3 @@
-from functools import wraps
-from typing import Callable
-
 import jwt
 from backend.extensions import logger
 from backend.services.auth_services import (authenticate, generate_token,
@@ -41,33 +38,6 @@ def login():
     return jsonify({'success': False, 'message': 'Invalid credentials'}), 401
 
 
-def login_required(f: Callable) -> Callable:
-    """Decorator to protect routes by requiring a valid JWT token stored in a cookie.
-
-    If the token is valid, it sets Flask session `g.user_id` with the user's UUID.
-    """
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        token = request.cookies.get("jwt")
-        print(f"Token here = {token}")
-        if not token:
-            return jsonify({'success': False, 'message': 'Authentication required.'}), 401
-
-        user_id = verify_token(token)
-
-        if user_id == "expired":  # TODO: change this
-            return jsonify({'success': False, 'message': 'Session expired. Please log in again.'}), 401
-        if user_id == "invalid":  # TODO: change this
-            return jsonify({'success': False, 'message': 'Invalid token. Authentication failed.'}), 401
-        if not user_id:
-            return jsonify({'success': False, 'message': 'Authentication required.'}), 401
-
-        g.user_id = user_id
-        return f(*args, **kwargs)
-
-    return decorated_function
-
-
 @auth_blueprint.route('/verify', methods=['GET'])
 def verify_authenticity() -> tuple[Response, int]:
     """Verifies that the provided token is genuine."""
@@ -79,16 +49,16 @@ def verify_authenticity() -> tuple[Response, int]:
 
     if not token:
         logger.info("auth_routes.verify_authenticity : No token was provided.")
-        return jsonify({"auth": False, "message": "No token provided"}), 401
+        return jsonify({"auth": False, "message": "No token provided."}), 401
 
     try:
         user_id = verify_token(token)
     except jwt.ExpiredSignatureError:
         logger.warning("auth_routes.verify_authenticity : Token is EXPIRED.", exc_info=1)
-        return jsonify({"auth": False, "message": "Token expired"}), 401
+        return jsonify({"auth": False, "message": "Token expired."}), 401
     except jwt.InvalidTokenError:
         logger.warning("auth_routes.verify_authenticity : Token is INVALID.", exc_info=1)
-        return jsonify({"auth": False, "message": "Invalid token"}), 401
+        return jsonify({"auth": False, "message": "Invalid token."}), 401
 
     logger.info("auth_routes.verify_authenticity : Token verification successful.")
     return jsonify({"auth": True, "user_id": user_id}), 200

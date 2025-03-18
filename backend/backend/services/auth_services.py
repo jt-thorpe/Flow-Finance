@@ -1,14 +1,16 @@
 import datetime
 import os
 import uuid
-from typing import Final
+from functools import wraps
+from typing import Callable, Final
 
 import jwt
 from argon2 import PasswordHasher
 from argon2.exceptions import (InvalidHashError, VerificationError,
                                VerifyMismatchError)
+from backend.extensions import logger
 from backend.queries.auth_queries import get_user_by
-from flask import g
+from flask import g, jsonify, request
 from sqlalchemy.exc import SQLAlchemyError
 
 PH: Final[PasswordHasher] = PasswordHasher()
@@ -84,12 +86,42 @@ def verify_token(token: str) -> str:
         decoded_token = jwt.decode(token, os.environ["JWT_SECRET_KEY"], algorithms=["HS256"])
         return decoded_token["user_id"]
     except jwt.ExpiredSignatureError:
-        raise jwt.ExpiredSignatureError("JWT signature expired")
+        raise jwt.ExpiredSignatureError()
     except jwt.InvalidTokenError:
-        raise jwt.InvalidTokenError("JWT is invalid")
+        raise jwt.InvalidTokenError()
 
 
 def get_token_from_header(header: str) -> str | None:
     if not header or not header.startswith("Bearer "):
         return None
     return header[7:]
+
+
+def login_required(f: Callable) -> Callable:
+    """Decorator to protect routes by requiring a valid JWT token stored in a cookie.
+
+    If the token is valid, it sets Flask session `g.user_id` with the user's UUID.
+    """
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        token = request.cookies.get("jwt")
+        if not token:
+            logger.info("No token to authenticate.")
+            return jsonify({'auth': False, 'message': 'No token present.'}), 401
+
+        try:
+            user_id = verify_token(token)
+            if not user_id:
+                logger.warning("Bad Authentication. No `user_id` returned by verify_token().")
+                return jsonify({'auth': False, 'message': 'Bad authentication.'}), 401
+        except jwt.ExpiredSignatureError as e:
+            logger.info(e)
+            return jsonify({'auth': False, 'message': 'Session expired.'}), 401
+        except jwt.InvalidSignatureError as e:
+            logger.warning(e)
+            return jsonify({'auth': False, 'message': 'Invalid token.'}), 401
+
+        g.user_id = user_id
+        return f(*args, **kwargs)
+
+    return decorated_function
