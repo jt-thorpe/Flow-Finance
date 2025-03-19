@@ -57,6 +57,6 @@ def get_user_cache(user_id: str) -> dict | None:
 
 
 def get_user_cache_field(user_id: str, field: str):
-    """Fetches a specific field (e.g., incomes, expenses) from a user's cached Redis hash."""
+    """Fetches a specific field (e.g. transaction, budget) from a user's cached Redis hash."""
     cache_field_data = redis_cache.hget(f"user:{user_id}", field)
     return json.loads(cache_field_data) if cache_field_data else None

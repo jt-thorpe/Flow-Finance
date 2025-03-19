@@ -53,7 +53,7 @@ class Budget(db.Model):
     @amount.setter
     def amount(self, value: float):
         """Stores amount as pence."""
-        self._amount = int(round(value * 100))
+        self._amount = int(value * 100)
 
     @hybrid_property
     def spent(self) -> float:
