@@ -11,7 +11,6 @@ import pytest
 from backend.routes.test.utils import (
     DummyDBUser,
     sim_cache_user_with_associations_success,
-    sim_get_cache_field_miss,
     sim_get_user_cache_hit,
     sim_get_user_cache_miss,
     sim_get_user_with_associations_hit,
@@ -105,3 +104,39 @@ def test_get_user_data_cache_miss_db_hit(app, client, monkeypatch):
         data = response.get_json()
         assert data["success"] == True
         assert data["user"] == test_user
+
+
+##########################
+# /api/users/check-taken #
+##########################
+
+
+def test_check_email_taken(client, monkeypatch):
+    monkeypatch.setattr("backend.routes.users_routes.is_taken", lambda email: True)
+
+    response = client.get(
+        "/api/users/check-taken", query_string={"email": "test@test.me"}
+    )
+    assert response.status_code == 200
+
+    data = response.get_json()
+    assert data["success"] is True
+    assert data["taken"] is True
+
+
+def test_check_email_free(client, monkeypatch):
+    monkeypatch.setattr("backend.routes.users_routes.is_taken", lambda email: False)
+
+    response = client.get(
+        "/api/users/check-taken", query_string={"email": "test@test.me"}
+    )
+    assert response.status_code == 200
+
+    data = response.get_json()
+    assert data["success"] is True
+    assert data["taken"] is False
+
+
+#######################
+# /api/users/register #
+#######################
