@@ -1,3 +1,5 @@
+from typing import Final
+
 import backend.services.auth_services
 
 # Patch out @login_required deco, we're not testing auth
@@ -7,20 +9,8 @@ import pytest
 
 # budgets_blueprint will now import the patched @login_requried
 from backend.routes.budget_routes import budgets_blueprint
+from backend.routes.test.utils import DummyDBUser, sim_get_cache_field_miss
 from flask import Flask, g
-
-
-class DummyDBUser:
-    """A dummy class to simulate a DB user record."""
-
-    def to_dict(self):
-        """We don't particularly need to check the actual data for these tests,
-        but lets return something in the format it would be."""
-        return {
-            "meta": {"id": "testid", "alias": "testalias"},
-            "transactions": [{}, {}, {}],
-            "budgets": [{}, {}],
-        }
 
 
 @pytest.fixture
@@ -34,6 +24,9 @@ def app():
 @pytest.fixture
 def client(app):
     return app.test_client()
+
+
+PREFIX: Final[str] = "backend.routes.budget_routes"
 
 
 #####################
@@ -72,20 +65,12 @@ def test_load_budgets_cache_hit(app, client, monkeypatch):
         assert data == dummy_cached_user_budgets
 
 
-def cache_miss(monkeypatch):
-    """Simulate a cache miss."""
-    monkeypatch.setattr(
-        "backend.routes.budget_routes.get_user_cache_field",
-        lambda user_id, field: None,
-    )
-
-
 def test_load_budgets_no_cache_db_success(app, client, monkeypatch):
     """Test the case where there is no cached data, but the database returns valid user data."""
     with app.app_context():
         g.user_id = "test_userid"  # patch in a value for the Flask session
 
-        cache_miss(monkeypatch)
+        sim_get_cache_field_miss(monkeypatch=monkeypatch, prefix=PREFIX)
 
         # Simulate a successful DB query.
         monkeypatch.setattr(
@@ -110,7 +95,7 @@ def test_load_budgets_no_cache_db_fail(app, client, monkeypatch):
     with app.app_context():
         g.user_id = "test_userid"
 
-        cache_miss(monkeypatch)
+        sim_get_cache_field_miss(monkeypatch, prefix=PREFIX)
 
         # Sim get_user_with_associations fail
         monkeypatch.setattr(

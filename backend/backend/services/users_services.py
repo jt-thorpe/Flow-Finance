@@ -38,7 +38,7 @@ def add_user_account_to_db(email: str, hashed_password: str, alias: str) -> None
         print(f"An unexpected error occurred: {str(e)}")
 
 
-def get_user_with_associations(user_id: str) -> User:
+def get_user_with_associations(user_id: str) -> User | None:
     """Get a user object with associated data.
 
     For the authenticated user_id we query all information to create an instance of a User object with associated data from related tables.
