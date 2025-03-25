@@ -1,6 +1,4 @@
-from sys import prefix
 from typing import Final
-from urllib import response
 
 import backend.services.auth_services
 
@@ -81,7 +79,7 @@ def test_get_user_data_cache_miss_db_miss(app, client, monkeypatch):
 
 
 def test_get_user_data_cache_miss_db_hit(app, client, monkeypatch):
-    """Simualte the case where there is no data in the cache but we successfully hit the db."""
+    """Test the case where there is no data in the cache but we successfully hit the db."""
     with app.app_context():
         g.user_id = "test_userid"
         test_user = DummyDBUser().to_dict()
@@ -112,6 +110,7 @@ def test_get_user_data_cache_miss_db_hit(app, client, monkeypatch):
 
 
 def test_check_email_taken(client, monkeypatch):
+    """Test the case where the email is taken."""
     monkeypatch.setattr("backend.routes.users_routes.is_taken", lambda email: True)
 
     response = client.get(
@@ -125,6 +124,7 @@ def test_check_email_taken(client, monkeypatch):
 
 
 def test_check_email_free(client, monkeypatch):
+    """Test the case where the email is not taken."""
     monkeypatch.setattr("backend.routes.users_routes.is_taken", lambda email: False)
 
     response = client.get(
@@ -140,3 +140,26 @@ def test_check_email_free(client, monkeypatch):
 #######################
 # /api/users/register #
 #######################
+
+
+def test_register_user_success(client, monkeypatch):
+    """Test the case where usr registration is successful."""
+    # Patch in a result for password hashing
+    monkeypatch.setattr(
+        "backend.routes.users_routes.hash_password", lambda password: "abcdefg"
+    )
+
+    # Patch in successful db query
+    monkeypatch.setattr(
+        "backend.routes.users_routes.add_user_account_to_db",
+        lambda alias, email, hashed_password: None,
+    )
+
+    response = client.post(
+        "/api/users/register",
+        json={"alias": "test", "email": "test@test.me", "password": "blah"},
+    )
+    assert response.status_code == 200
+
+    data = response.get_json()
+    assert data["success"] == True
