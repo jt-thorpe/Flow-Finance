@@ -19,27 +19,22 @@ def cache_user_with_associations(user: User) -> None:
     Raises:
         Exception: If the user data cannot be cached.
     """
-    try:
-        serialised_user = serialise_user_associations(user)
+    serialised_user = serialise_user_associations(user)
 
-        print(f"{__name__} - serialised_user = {serialised_user}")
+    print(f"{__name__} - serialised_user = {serialised_user}")
 
-        user_data = {
-            "meta": json.dumps(
-                {"id": serialised_user["id"], "alias": serialised_user["alias"]}
-            ),
-            "transactions": json.dumps(serialised_user["transactions"]),
-            "budgets": json.dumps(serialised_user["budgets"]),
-        }
+    user_data = {
+        "meta": json.dumps(
+            {"id": serialised_user["id"], "alias": serialised_user["alias"]}
+        ),
+        "transactions": json.dumps(serialised_user["transactions"]),
+        "budgets": json.dumps(serialised_user["budgets"]),
+    }
 
-        # print(f"{__name__} - caching user_data = {user_data}")
+    # print(f"{__name__} - caching user_data = {user_data}")
 
-        redis_cache.hset(f"user:{user.id}", mapping=user_data)
-        redis_cache.expire(f"user:{user.id}", CACHE_EXPIRATION)
-
-    except Exception as e:
-        print(f"{__name__} - Unable to cache user data: {e}")
-        raise e
+    redis_cache.hset(f"user:{user.id}", mapping=user_data)
+    redis_cache.expire(f"user:{user.id}", CACHE_EXPIRATION)
 
 
 def get_user_cache(user_id: str) -> dict | None:

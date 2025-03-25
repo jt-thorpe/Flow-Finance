@@ -1,5 +1,4 @@
-import json
-
+from backend.extensions import logger
 from backend.services.auth_services import login_required
 from backend.services.cache_services import cache_user_with_associations, get_user_cache
 from backend.services.dashboard_services import compute_dashboard
@@ -27,18 +26,39 @@ def load_dashboard() -> tuple[Response, int]:
                 jsonify(
                     {
                         "success": False,
-                        "message": f"{__name__} - Error fetching user data from db.",
+                        "message": "Error fetching user data from db.",
                     }
                 ),
                 404,
             )
 
-        cache_user_with_associations(user_data)
-        user_data = user_data.to_dict()
+        try:
+            cache_user_with_associations(user_data)
+            user_data = user_data.to_dict()
+        except Exception as e:
+            logger.critical("Unable to cache user data.", e)
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "message": "Background error. Unable to load dashboard.",
+                    }
+                ),
+                404,
+            )
 
-    print("dashboard_routes.load_dashboard : user_data returned from cache")
-    computed_dashboard_data = compute_dashboard(user_data=user_data)
-    print("JSON Dashboard dump", json.dumps(computed_dashboard_data, indent=4))
-    print(type(computed_dashboard_data["user_latest_transactions"][3]["frequency"]))
+    try:
+        computed_dashboard_data = compute_dashboard(user_data=user_data)
+    except Exception as e:
+        logger.error("Unable to compute dashboard information", e)
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Background error. Unable to compute dashboard.",
+                }
+            ),
+            404,
+        )
 
     return jsonify(computed_dashboard_data), 200
