@@ -1,4 +1,3 @@
-from backend.models.transaction_models import Transaction
 from backend.queries.transactions_queries import get_all_transactions
 from backend.services.auth_services import login_required
 from backend.services.cache_services import get_user_cache_field
@@ -25,5 +24,11 @@ def get_transactions():
         transactions_list = cached_transactions
 
     # Now paginate the list in-memory.
-    result = paginate_transactions(transactions_list, page, limit)
-    return jsonify(result), 200
+    try:
+        result = paginate_transactions(transactions_list, page, limit)
+        return jsonify({"success": True, "data": result}), 200
+    except ValueError:
+        return (
+            jsonify({"success": False, "message": "Unable to load transactions."}),
+            500,
+        )

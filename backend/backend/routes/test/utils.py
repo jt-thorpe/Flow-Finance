@@ -32,6 +32,14 @@ def sim_get_cache_field_miss(monkeypatch, prefix):
     )
 
 
+def sim_get_cache_field_hit(monkeypatch, prefix, data):
+    """Simulate a cache hit for get_user_cache_field."""
+    monkeypatch.setattr(
+        f"{prefix}.get_user_cache_field",
+        lambda user_id, field: data,
+    )
+
+
 def sim_get_user_with_associations_miss(monkeypatch, prefix):
     """Simulate a db miss for get_user_with_associations."""
     monkeypatch.setattr(
@@ -116,3 +124,40 @@ class DummyDashboardData:
             "user_expenses_total": [0, 1, 2],
             "user_budget_summary": [{}, {}],
         }
+
+
+def sim_get_all_transactions_success(monkeypatch, prefix, data):
+    """Sim getting all a users transactions."""
+    monkeypatch.setattr(
+        f"{prefix}.get_all_transactions",
+        lambda user_id: data,
+    )
+
+
+def sim_get_all_transactions_empty(monkeypatch, prefix):
+    """Sim failing to get a users transactions."""
+    monkeypatch.setattr(f"{prefix}.get_all_transactions", lambda user_id: None)
+
+
+def sim_pagination_fail(monkeypatch, prefix):
+    """Sim pagination failing on the data."""
+
+    def throw_err(*args, **kwargs):
+        raise ValueError
+
+    monkeypatch.setattr(f"{prefix}.paginate_transactions", throw_err)
+
+
+def sim_pagination_empty(monkeypatch, prefix):
+    """Sim pagination returns no transactions."""
+    monkeypatch.setattr(
+        f"{prefix}.paginate_transactions", lambda transactions, page, per_page: None
+    )
+
+
+class DummyTransactionsData:
+    """Represents the returned users transactions."""
+
+    def to_dict(self):
+        """Mimics roughly the structure of the transactions"""
+        return [{"id": 1}, {"id": 2}]
