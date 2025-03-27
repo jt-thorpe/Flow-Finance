@@ -62,7 +62,11 @@ def test_load_budgets_cache_hit(app, client, monkeypatch):
         assert response.status_code == 200
 
         data = response.get_json()
-        assert data == dummy_cached_user_budgets
+        assert data == {
+            "success": True,
+            "message": "Budgets loaded from cache",
+            "budgets": dummy_cached_user_budgets
+        }
 
 
 def test_load_budgets_no_cache_db_success(app, client, monkeypatch):
@@ -88,10 +92,15 @@ def test_load_budgets_no_cache_db_success(app, client, monkeypatch):
         assert response.status_code == 200
 
         data = response.get_json()
-        assert data == [{}, {}]  # Returns the budget field of the user dict
+        assert data == {
+            "success": True,
+            "message": "Budgets loaded from database",
+            "budgets": [{}, {}]  # Returns the budget field of the user dict
+        }
 
 
 def test_load_budgets_no_cache_db_fail(app, client, monkeypatch):
+    """Test the case where there is no cached data and the database query fails."""
     with app.app_context():
         g.user_id = "test_userid"
 
@@ -107,5 +116,64 @@ def test_load_budgets_no_cache_db_fail(app, client, monkeypatch):
         assert response.status_code == 404
 
         data = response.get_json()
-        assert data["success"] == False
-        assert data["message"] == "No cache hit then error fetching user data from db."
+        assert data == {
+            "success": False,
+            "message": "No budget data found for user"
+        }
+
+
+def test_load_budgets_cache_error(app, client, monkeypatch):
+    """Test the case where caching fails but database data is still returned."""
+    with app.app_context():
+        g.user_id = "test_userid"
+
+        sim_get_cache_field_miss(monkeypatch, prefix=PREFIX)
+
+        # Simulate a successful DB query
+        monkeypatch.setattr(
+            "backend.routes.budget_routes.get_user_with_associations",
+            lambda user_id: DummyDBUser(),
+        )
+
+        # Simulate cache error
+        def raise_cache_error(user_data):
+            raise Exception("Cache error")
+            
+        monkeypatch.setattr(
+            "backend.routes.budget_routes.cache_user_with_associations",
+            raise_cache_error,
+        )
+
+        response = client.get("/api/budgets/load")
+        assert response.status_code == 200
+
+        data = response.get_json()
+        assert data == {
+            "success": True,
+            "message": "Budgets loaded from database",
+            "budgets": [{}, {}]
+        }
+
+
+def test_load_budgets_unexpected_error(app, client, monkeypatch):
+    """Test handling of unexpected errors in the load_budgets endpoint."""
+    with app.app_context():
+        g.user_id = "test_userid"
+
+        # Simulate an unexpected error
+        def raise_unexpected_error(user_id, field):
+            raise Exception("Unexpected error")
+            
+        monkeypatch.setattr(
+            "backend.routes.budget_routes.get_user_cache_field",
+            raise_unexpected_error,
+        )
+
+        response = client.get("/api/budgets/load")
+        assert response.status_code == 500
+
+        data = response.get_json()
+        assert data == {
+            "success": False,
+            "message": "Internal server error while loading budgets"
+        }
