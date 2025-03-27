@@ -2,6 +2,7 @@ from backend.queries.transactions_queries import get_all_transactions
 from backend.services.auth_services import login_required
 from backend.services.cache_services import get_user_cache_field
 from backend.services.transactions_services import paginate_transactions
+from backend.extensions import logger
 from flask import Blueprint, g, jsonify, request
 
 transactions_blueprint = Blueprint(
@@ -27,31 +28,61 @@ def list_transactions():
             - JSON response with transaction data and pagination info
             - HTTP status code (200 for success, 400 for invalid params, 500 for errors)
     """
-    page = request.args.get("page", 1, type=int)
-    limit = request.args.get("limit", 20, type=int)
-
-    # Validate pagination parameters
-    if page < 1 or limit < 1:
-        return (
-            jsonify({"success": False, "message": "Invalid page or limit."}),
-            400,
-        )
-
-    # Try to get transactions from cache first
-    cached_transactions = get_user_cache_field(user_id=g.user_id, field="transactions")
-
-    # If cache miss, fetch from database
-    if cached_transactions is None:
-        transactions_list = get_all_transactions(g.user_id)
-    else:
-        transactions_list = cached_transactions
-
-    # Paginate the results
     try:
-        result = paginate_transactions(transactions_list, page, limit)
-        return jsonify({"success": True, "data": result}), 200
-    except ValueError:
-        return (
-            jsonify({"success": False, "message": "Unable to load transactions."}),
-            500,
-        )
+        page = request.args.get("page", 1, type=int)
+        limit = request.args.get("limit", 20, type=int)
+
+        # Validate pagination parameters
+        if page < 1 or limit < 1:
+            logger.warning(f"transactions_routes.list_transactions : Invalid pagination params - page: {page}, limit: {limit}")
+            return jsonify({
+                "success": False,
+                "message": "Invalid page or limit parameters"
+            }), 400
+
+        logger.info(f"transactions_routes.list_transactions : Fetching transactions for user {g.user_id} - page: {page}, limit: {limit}")
+
+        # Try to get transactions from cache first
+        cached_transactions = get_user_cache_field(user_id=g.user_id, field="transactions")
+
+        # If cache miss, fetch from database
+        if cached_transactions is None:
+            logger.info(f"transactions_routes.list_transactions : Cache miss for user {g.user_id}, querying database")
+            transactions_list = get_all_transactions(g.user_id)
+        else:
+            logger.info(f"transactions_routes.list_transactions : Cache hit for user {g.user_id}")
+            transactions_list = cached_transactions
+
+        # Paginate the results
+        try:
+            result = paginate_transactions(transactions_list, page, limit)
+            if not result:
+                logger.info(f"transactions_routes.list_transactions : No transactions found for user {g.user_id}")
+                return jsonify({
+                    "success": True,
+                    "message": "No transactions found",
+                    "transactions": [],
+                    "has_more": False
+                }), 200
+
+            logger.info(f"transactions_routes.list_transactions : Successfully retrieved transactions for user {g.user_id}")
+            return jsonify({
+                "success": True,
+                "message": "Transactions retrieved successfully",
+                "transactions": result["transactions"],
+                "has_more": result["has_more"]
+            }), 200
+
+        except ValueError as e:
+            logger.error(f"transactions_routes.list_transactions : Pagination error for user {g.user_id}: {str(e)}", exc_info=True)
+            return jsonify({
+                "success": False,
+                "message": "Error paginating transactions"
+            }), 500
+
+    except Exception as e:
+        logger.error(f"transactions_routes.list_transactions : Unexpected error: {str(e)}", exc_info=True)
+        return jsonify({
+            "success": False,
+            "message": "Internal server error while retrieving transactions"
+        }), 500
