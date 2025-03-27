@@ -1,10 +1,11 @@
-interface BudgetItem {
+export interface BudgetItem {
     id: string;
+    user_id: string;
     category: string;
-    amount: number;
-    spent: number;
-    remaining: number;
     frequency: string;
+    amount: string;
+    spent: string;
+    remaining: string;
 }
 
 export default BudgetItem

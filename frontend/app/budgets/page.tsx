@@ -16,7 +16,7 @@ const Budgets = () => {
     const [userBudgetSummary, setUserBudgetSummary] = useState<BudgetItem[]>([]);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [isRemoveMode, setIsRemoveMode] = useState(false);
-    const [selectedBudgetIds, setSelectedBudgetIds] = useState<number[]>([]);
+    const [selectedBudgetIds, setSelectedBudgetIds] = useState<string[]>([]);
 
     useEffect(() => {
         if (auth?.user?.user_id) {
@@ -37,13 +37,17 @@ const Budgets = () => {
                 return;
             }
 
-            if (response.ok) {
-                const data = await response.json();
-                // Make sure each budget has a unique id. Adjust based on your data.
-                setUserBudgetSummary(data || []);
+            const data = await response.json();
+            
+            if (!response.ok || !data.success) {
+                console.error("Error loading budgets:", data.message);
+                setUserBudgetSummary([]);
+                return;
             }
+
+            setUserBudgetSummary(data.budgets || []);
         } catch (error) {
-            console.error("Error fetching budget data", error);
+            console.error("Error fetching budget data:", error);
             setUserBudgetSummary([]);
         }
     };
@@ -64,7 +68,7 @@ const Budgets = () => {
     };
 
     // Toggle selection of a budget (by id) for removal
-    const toggleBudgetSelection = (id: number) => {
+    const toggleBudgetSelection = (id: string) => {
         if (selectedBudgetIds.includes(id)) {
             setSelectedBudgetIds(selectedBudgetIds.filter((bid) => bid !== id));
         } else {
