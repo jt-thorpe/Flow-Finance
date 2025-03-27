@@ -26,13 +26,20 @@ export default function LoginPage() {
         }
 
         console.log("Submitting login request...");
-        const success = await auth.login(email, password);
+        try {
+            const success = await auth.login(email, password);
+            console.log("Login response:", success);
 
-        if (success) {
-            console.log("Login successful, redirecting to dashboard...");
-            router.push("/dashboard"); // Middleware will now verify the token
-        } else {
-            setError("Invalid credentials, please try again.");
+            if (success) {
+                console.log("Login successful, redirecting to dashboard...");
+                router.push("/dashboard");
+            } else {
+                console.error("Login failed");
+                setError("Invalid credentials, please try again.");
+            }
+        } catch (error) {
+            console.error("Login error:", error);
+            setError("An error occurred during login. Please try again.");
         }
     };
 

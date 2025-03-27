@@ -22,14 +22,14 @@ def login():
     if authenticate(email, password):
         token, expiry = generate_token(user_id=g.user_id)
         response = make_response(
-            jsonify(
-                {
-                    "message": "Login successful",
-                    "user_id": g.user_id,
-                    "expires_at": expiry
-                }),
-                200,
-            )
+            jsonify({
+                "success": True,
+                "message": "Login successful",
+                "user_id": g.user_id,
+                "expires_at": expiry
+            }),
+            200,
+        )
 
         response.set_cookie(
             key="jwt",

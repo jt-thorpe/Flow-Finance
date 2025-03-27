@@ -8,14 +8,13 @@ export const handleLogin = async (
     console.log("auth/handleLogin : handling login, requesting API call...");
 
     try {
-        const data = await apiLogin(email, password);
-        if (!data) {
-            console.error("Login failed");
+        const response = await apiLogin(email, password);
+        if (!response?.success) {
+            console.error("Login failed:", response?.message);
             return false;
         }
 
-        console.log("Login successful. User:", data.user_id);
-
+        console.log("Login successful. User:", response.user_id);
         return true;
     } catch (error) {
         console.error("Login error:", error);
@@ -47,16 +46,16 @@ export const handleAuthRefresh = async (): Promise<string | null> => {
     console.log("auth/handleRefresh : handling refresh, calling API...")
 
     try {
-        const data = await apiVerifyTokenClient();
-        if (!data) {
-            console.error("auth/handleRefresh : refresh failed");
-            return null
+        const response = await apiVerifyTokenClient();
+        if (!response?.success || !response?.user_id) {
+            console.error("auth/handleRefresh : refresh failed:", response?.message);
+            return null;
         }
 
-        console.log("auth/handleRefresh : refresh success")
-        return data.user_id
+        console.log("auth/handleRefresh : refresh success");
+        return response.user_id;
     } catch (error) {
-        console.error("auth.handleAuthRefresh : Error caught", error)
-        return null
+        console.error("auth.handleAuthRefresh : Error caught", error);
+        return null;
     }
 }

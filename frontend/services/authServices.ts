@@ -7,34 +7,40 @@ interface AuthResponse {
     expires_at?: number;
 }
 
-export const login = async (email: string, password: string): Promise<{ user_id: string; expires_at: number } | null> => {
+export const login = async (email: string, password: string): Promise<AuthResponse | null> => {
     console.log("authServices/login : calling backend API...");
 
-    const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-        credentials: "include"
-    });
+    try {
+        const response = await fetch(`${API_URL}/api/auth/login`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password }),
+            credentials: "include"
+        });
 
-    const data: AuthResponse = await response.json();
-    
-    if (!response.ok || !data.success) {
-        console.error("authServices/login : Login API error:", data.message);
+        const data: AuthResponse = await response.json();
+        console.log("authServices/login : Response received:", data);
+        
+        if (!response.ok || !data.success) {
+            console.error("authServices/login : Login API error:", data.message);
+            return null;
+        }
+
+        if (!data.user_id || !data.expires_at) {
+            console.error("authServices/login : Missing required data in response");
+            return null;
+        }
+
+        console.log("authServices/login : Login successful, cookies should now be set.");
+        return data;
+    } catch (error) {
+        console.error("authServices/login : Network or parsing error:", error);
         return null;
     }
-
-    if (!data.user_id || !data.expires_at) {
-        console.error("authServices/login : Missing required data in response");
-        return null;
-    }
-
-    console.log("authServices/login : Login successful, cookies should now be set.", data);
-    return { user_id: data.user_id, expires_at: data.expires_at };
 };
 
 
-async function verifyTokenBase(options: { token?: string; client?: boolean } = {}): Promise<{ user_id: string } | null> {
+async function verifyTokenBase(options: { token?: string; client?: boolean } = {}): Promise<AuthResponse | null> {
     const url = `${API_URL}/api/auth/verify`;
 
     // If a token is provided (server context), send it via the Authorization header.
@@ -57,7 +63,7 @@ async function verifyTokenBase(options: { token?: string; client?: boolean } = {
             return null;
         }
 
-        return { user_id: data.user_id };
+        return data;
     }
 
     // If no token is provided but client flag is true, assume client context
@@ -79,7 +85,7 @@ async function verifyTokenBase(options: { token?: string; client?: boolean } = {
             return null;
         }
 
-        return { user_id: data.user_id };
+        return data;
     }
 
     throw new Error('Token required for server-side verification');
@@ -87,13 +93,13 @@ async function verifyTokenBase(options: { token?: string; client?: boolean } = {
 
 
 // Client wrapper: used on the browser.
-export async function verifyTokenClient(): Promise<{ user_id: string } | null> {
+export async function verifyTokenClient(): Promise<AuthResponse | null> {
     return verifyTokenBase({ client: true });
 }
 
 
 // Server wrapper: used in middleware or other server contexts.
-export async function verifyTokenServer(token: string): Promise<{ user_id: string } | null> {
+export async function verifyTokenServer(token: string): Promise<AuthResponse | null> {
     return verifyTokenBase({ token: token });
 }
 

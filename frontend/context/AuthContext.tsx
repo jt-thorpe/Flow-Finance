@@ -19,12 +19,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const handleLogin = async (email: string, password: string): Promise<boolean> => {
         try {
             const response = await login(email, password);
-            if (!response) {
-                setUser(null)
-                setIsAuthenticated(false)
-                return false
+            if (!response?.success) {
+                console.error("Login failed:", response?.message);
+                setUser(null);
+                setIsAuthenticated(false);
+                return false;
             }
-            setUser({ user_id: response.user_id });
+
+            setUser({ user_id: response.user_id as string });
             setIsAuthenticated(true);
             return true;
         } catch (error) {
@@ -34,22 +36,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     };
 
     const handleLogout = async () => {
-        await logout();
-        setUser(null);
-        setIsAuthenticated(false);
+        try {
+            const success = await logout();
+            if (!success) {
+                console.error("Logout failed");
+                return;
+            }
+            setUser(null);
+            setIsAuthenticated(false);
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
     };
 
     // Rehydrate the AuthContext on mount
     useEffect(() => {
         const checkAuthStatus = async () => {
             try {
-                const userData = await verifyTokenClient()
-                if (userData?.user_id) {
-                    setUser({ user_id: userData.user_id });
+                const response = await verifyTokenClient();
+                if (response?.success && response?.user_id) {
+                    setUser({ user_id: response.user_id });
                     setIsAuthenticated(true);
+                } else {
+                    console.error("Auth rehydration failed:", response?.message);
+                    setUser(null);
+                    setIsAuthenticated(false);
                 }
             } catch (error) {
                 console.error("Failed to rehydrate auth:", error);
+                setUser(null);
+                setIsAuthenticated(false);
             }
         };
 
