@@ -9,21 +9,44 @@ transactions_blueprint = Blueprint(
 )
 
 
-@transactions_blueprint.route("/get-by", methods=["GET"])
+@transactions_blueprint.route("/list", methods=["GET"])
 @login_required
-def get_transactions():
+def list_transactions():
+    """
+    Retrieve paginated transactions for the authenticated user.
+    
+    Attempts to fetch transactions from cache first, falling back to database if not found.
+    Returns paginated results with transaction data and pagination metadata.
+    
+    Query Parameters:
+        page (int): The page number to retrieve (default: 1)
+        limit (int): Number of transactions per page (default: 20)
+    
+    Returns:
+        tuple: (Response, int) containing:
+            - JSON response with transaction data and pagination info
+            - HTTP status code (200 for success, 400 for invalid params, 500 for errors)
+    """
     page = request.args.get("page", 1, type=int)
     limit = request.args.get("limit", 20, type=int)
 
+    # Validate pagination parameters
+    if page < 1 or limit < 1:
+        return (
+            jsonify({"success": False, "message": "Invalid page or limit."}),
+            400,
+        )
+
+    # Try to get transactions from cache first
     cached_transactions = get_user_cache_field(user_id=g.user_id, field="transactions")
 
+    # If cache miss, fetch from database
     if cached_transactions is None:
-        # Rethink this part; should never be no transactions at this point
         transactions_list = get_all_transactions(g.user_id)
     else:
         transactions_list = cached_transactions
 
-    # Now paginate the list in-memory.
+    # Paginate the results
     try:
         result = paginate_transactions(transactions_list, page, limit)
         return jsonify({"success": True, "data": result}), 200
