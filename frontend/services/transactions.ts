@@ -6,10 +6,19 @@ export async function fetchTransactions(page: string, limit: string) {
         credentials: "include",
     });
 
-
     if (!response.ok) {
-        throw new Error("Failed to fetch transactions");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch transactions");
     }
 
-    return response.json();
+    const data = await response.json();
+    
+    if (!data.success) {
+        throw new Error(data.message || "Failed to fetch transactions");
+    }
+
+    return {
+        transactions: data.transactions,
+        has_more: data.has_more
+    };
 }
