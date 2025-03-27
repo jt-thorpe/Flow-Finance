@@ -25,12 +25,11 @@ def login():
             jsonify(
                 {
                     "message": "Login successful",
-                    "user_id": g.user_id,  # Ensure frontend receives user data
-                    "expires_at": expiry,
-                }
-            ),
-            200,
-        )
+                    "user_id": g.user_id,
+                    "expires_at": expiry
+                }),
+                200,
+            )
 
         response.set_cookie(
             key="jwt",
@@ -58,8 +57,11 @@ def verify_authenticity() -> tuple[Response, int]:
     logger.info(f"auth_routes.verify_authenticity : Token is {token}")
 
     if not token:
-        logger.info("auth_routes.verify_authenticity : No token was provided.")
-        return jsonify({"auth": False, "message": "No token provided."}), 401
+        logger.info("auth_routes.verify_session : No token was provided.")
+        return jsonify({
+            "success": False,
+            "message": "No token provided."
+        }), 401
 
     try:
         user_id = verify_token(token)
@@ -67,21 +69,43 @@ def verify_authenticity() -> tuple[Response, int]:
         logger.warning(
             "auth_routes.verify_authenticity : Token is EXPIRED.", exc_info=1
         )
-        return jsonify({"auth": False, "message": "Token expired."}), 401
+        return jsonify({
+            "success": False,
+            "message": "Token expired."
+        }), 401
     except jwt.InvalidTokenError:
         logger.warning(
             "auth_routes.verify_authenticity : Token is INVALID.", exc_info=1
         )
-        return jsonify({"auth": False, "message": "Invalid token."}), 401
+        return jsonify({
+            "success": False,
+            "message": "Invalid token."
+        }), 401
 
-    logger.info("auth_routes.verify_authenticity : Token verification successful.")
-    return jsonify({"auth": True, "user_id": user_id}), 200
+    logger.info("auth_routes.verify_session : Token verification successful.")
+    return jsonify({
+        "success": True,
+        "message": "Token verified successfully",
+        "user_id": user_id
+    }), 200
 
 
 @auth_blueprint.route("/logout", methods=["POST"])
-def logout() -> tuple[Response, int]:
-    """Logs the user out."""
-    response = make_response(jsonify({"message": "Logged out"}))
+def terminate_session() -> tuple[Response, int]:
+    """
+    Terminate the current user session.
+    
+    Invalidates the current session by clearing the JWT cookie.
+    
+    Returns:
+        tuple: (Response, int) containing:
+            - JSON response with logout confirmation
+            - HTTP status code (200 for success)
+    """
+    response = make_response(jsonify({
+        "success": True,
+        "message": "Logged out successfully"
+    }))
     response.set_cookie(
         "jwt", "", expires=0, httponly=True, secure=True, samesite=None, path="/"
     )

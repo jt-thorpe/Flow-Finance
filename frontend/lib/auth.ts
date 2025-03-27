@@ -24,11 +24,22 @@ export const handleLogin = async (
 };
 
 
-export const handleLogout = async (): Promise<void> => {
+export const handleLogout = async (): Promise<boolean> => {
     console.log("auth/handleLogout: Logging out user...");
-    await apiLogout();
+    
+    try {
+        const success = await apiLogout();
+        if (!success) {
+            console.error("auth/handleLogout: Logout failed");
+            return false;
+        }
 
-    console.log("auth/handleLogout: Logout complete.");
+        console.log("auth/handleLogout: Logout complete.");
+        return true;
+    } catch (error) {
+        console.error("auth/handleLogout: Error during logout:", error);
+        return false;
+    }
 };
 
 
