@@ -52,7 +52,7 @@ def client(app):
     return app.test_client()
 
 
-def test_get_transactions_cache_miss_db_hit_success(app, client, monkeypatch):
+def test_list_transactions_cache_miss_db_success(app, client, monkeypatch):
     """Test successful retrieval of transactions when cache misses but DB has data."""
     with app.app_context():
         g.user_id = "test_userid"
@@ -63,16 +63,19 @@ def test_get_transactions_cache_miss_db_hit_success(app, client, monkeypatch):
             monkeypatch, prefix=FUNC_PREFIX, data=dummy_transactions
         )
 
-        response = client.get("/api/transactions/get-by?page=1&limit=20")
+        response = client.get("/api/transactions/list?page=1&limit=20")
         assert response.status_code == 200
 
         data = response.get_json()
-        assert data["success"] is True
-        assert data["data"]["transactions"] == [{"id": 1}, {"id": 2}]
-        assert data["data"]["has_more"] is False
+        assert data == {
+            "success": True,
+            "message": "Transactions retrieved successfully",
+            "transactions": [{"id": 1}, {"id": 2}],
+            "has_more": False
+        }
 
 
-def test_get_transactions_cache_hit_success(app, client, monkeypatch):
+def test_list_transactions_cache_hit_success(app, client, monkeypatch):
     """Test successful retrieval of transactions from cache."""
     with app.app_context():
         g.user_id = "test_userid"
@@ -82,96 +85,79 @@ def test_get_transactions_cache_hit_success(app, client, monkeypatch):
             monkeypatch, prefix=FUNC_PREFIX, data=dummy_transactions
         )
 
-        response = client.get("/api/transactions/get-by?page=1&limit=20")
+        response = client.get("/api/transactions/list?page=1&limit=20")
         assert response.status_code == 200
 
         data = response.get_json()
-        assert data["success"] is True
-        assert data["data"]["transactions"] == [{"id": 1}, {"id": 2}]
-        assert data["data"]["has_more"] is False
+        assert data == {
+            "success": True,
+            "message": "Transactions retrieved successfully",
+            "transactions": [{"id": 1}, {"id": 2}],
+            "has_more": False
+        }
 
 
-def test_get_transactions_cache_hit_pagination_fail(app, client, monkeypatch):
-    """Test handling of pagination failure when data is retrieved from cache."""
-    with app.app_context():
-        g.user_id = "test_userid"
-        dummy_transactions = DummyTransactionsData().to_dict()
-
-        sim_get_cache_field_hit(
-            monkeypatch, prefix=FUNC_PREFIX, data=dummy_transactions
-        )
-        sim_pagination_fail(monkeypatch, prefix=FUNC_PREFIX)
-
-        response = client.get("/api/transactions/get-by?page=1&limit=20")
-        assert response.status_code == 500
-
-        data = response.get_json()
-        assert data["success"] is False
-        assert data["message"] == "Unable to load transactions."
-
-
-def test_get_transactions_cache_miss_db_hit_pagination_fail(app, client, monkeypatch):
-    """Test handling of pagination failure when data is retrieved from database."""
-    with app.app_context():
-        g.user_id = "test_userid"
-        dummy_transactions = DummyTransactionsData().to_dict()
-
-        sim_get_cache_field_miss(monkeypatch, prefix=FUNC_PREFIX)
-        sim_get_all_transactions_success(
-            monkeypatch, prefix=FUNC_PREFIX, data=dummy_transactions
-        )
-        sim_pagination_fail(monkeypatch, prefix=FUNC_PREFIX)
-
-        response = client.get("/api/transactions/get-by?page=1&limit=20")
-        assert response.status_code == 500
-
-        data = response.get_json()
-        assert data["success"] is False
-        assert data["message"] == "Unable to load transactions."
-
-
-def test_get_transactions_cache_miss_db_miss_pagination_empty(app, client, monkeypatch):
-    """Test handling of empty transaction list from both cache and database."""
-    with app.app_context():
-        g.user_id = "test_userid"
-
-        sim_get_cache_field_miss(monkeypatch, prefix=FUNC_PREFIX)
-        sim_get_all_transactions_empty(monkeypatch, prefix=FUNC_PREFIX)
-        sim_pagination_empty(monkeypatch, prefix=FUNC_PREFIX)
-
-        response = client.get("/api/transactions/get-by?page=1&limit=20")
-        assert response.status_code == 200
-
-        data = response.get_json()
-        assert data["success"] is True
-        assert data["data"] is None
-
-
-def test_get_transactions_negative_page(app, client, monkeypatch):
-    """Test handling of negative page parameter."""
+def test_list_transactions_pagination_error(app, client, monkeypatch):
+    """Test handling of pagination errors."""
     with app.app_context():
         g.user_id = "test_userid"
         sim_get_cache_field_hit(monkeypatch, prefix=FUNC_PREFIX, data=DummyTransactionsData().to_dict())
+        sim_pagination_fail(monkeypatch, prefix=FUNC_PREFIX)
         
-        response = client.get("/api/transactions/get-by?page=-1&limit=20")
-        assert response.status_code == 400
-        assert response.get_json()["success"] is False
+        response = client.get("/api/transactions/list?page=1&limit=20")
+        assert response.status_code == 500
+        data = response.get_json()
+        assert data == {
+            "success": False,
+            "message": "Error paginating transactions"
+        }
 
 
-def test_get_transactions_no_transactions(app, client, monkeypatch):
+def test_list_transactions_no_transactions(app, client, monkeypatch):
     """Test handling of user with no transactions."""
     with app.app_context():
         g.user_id = "test_userid"
         sim_get_cache_field_miss(monkeypatch, prefix=FUNC_PREFIX)
         sim_get_all_transactions_empty(monkeypatch, prefix=FUNC_PREFIX)
+        sim_pagination_empty(monkeypatch, prefix=FUNC_PREFIX)
         
-        response = client.get("/api/transactions/get-by?page=1&limit=20")
+        response = client.get("/api/transactions/list?page=1&limit=20")
         assert response.status_code == 200
-        assert response.get_json()["success"] is True
-        assert response.get_json()["data"] is None
+        data = response.get_json()
+        assert data == {
+            "success": True,
+            "message": "No transactions found",
+            "transactions": [],
+            "has_more": False
+        }
 
 
-def test_get_transactions_pagination_boundaries(app, client, monkeypatch):
+def test_list_transactions_invalid_pagination(app, client, monkeypatch):
+    """Test handling of invalid pagination parameters."""
+    with app.app_context():
+        g.user_id = "test_userid"
+        sim_get_cache_field_hit(monkeypatch, prefix=FUNC_PREFIX, data=DummyTransactionsData().to_dict())
+        
+        # Test negative page
+        response = client.get("/api/transactions/list?page=-1&limit=20")
+        assert response.status_code == 400
+        data = response.get_json()
+        assert data == {
+            "success": False,
+            "message": "Invalid page or limit parameters"
+        }
+        
+        # Test negative limit
+        response = client.get("/api/transactions/list?page=1&limit=-1")
+        assert response.status_code == 400
+        data = response.get_json()
+        assert data == {
+            "success": False,
+            "message": "Invalid page or limit parameters"
+        }
+
+
+def test_list_transactions_pagination_boundaries(app, client, monkeypatch):
     """Test pagination with various page sizes and boundaries."""
     with app.app_context():
         g.user_id = "test_userid"
@@ -179,35 +165,57 @@ def test_get_transactions_pagination_boundaries(app, client, monkeypatch):
         sim_get_cache_field_hit(monkeypatch, prefix=FUNC_PREFIX, data=transactions)
         
         # Test first page
-        response = client.get("/api/transactions/get-by?page=1&limit=10")
+        response = client.get("/api/transactions/list?page=1&limit=10")
         assert response.status_code == 200
         data = response.get_json()
-        assert len(data["data"]["transactions"]) == 10
-        assert data["data"]["has_more"] is True
+        assert data == {
+            "success": True,
+            "message": "Transactions retrieved successfully",
+            "transactions": [{"id": i} for i in range(10)],
+            "has_more": True
+        }
         
         # Test middle page
-        response = client.get("/api/transactions/get-by?page=2&limit=10")
+        response = client.get("/api/transactions/list?page=2&limit=10")
         assert response.status_code == 200
         data = response.get_json()
-        assert len(data["data"]["transactions"]) == 10
-        assert data["data"]["has_more"] is True
+        assert data == {
+            "success": True,
+            "message": "Transactions retrieved successfully",
+            "transactions": [{"id": i} for i in range(10, 20)],
+            "has_more": True
+        }
         
         # Test last page
-        response = client.get("/api/transactions/get-by?page=3&limit=10")
+        response = client.get("/api/transactions/list?page=3&limit=10")
         assert response.status_code == 200
         data = response.get_json()
-        assert len(data["data"]["transactions"]) == 5
-        assert data["data"]["has_more"] is False
+        assert data == {
+            "success": True,
+            "message": "Transactions retrieved successfully",
+            "transactions": [{"id": i} for i in range(20, 25)],
+            "has_more": False
+        }
 
 
-def test_get_transactions_pagination_error(app, client, monkeypatch):
-    """Test handling of pagination errors."""
+def test_list_transactions_unexpected_error(app, client, monkeypatch):
+    """Test handling of unexpected errors in the list_transactions endpoint."""
     with app.app_context():
         g.user_id = "test_userid"
-        sim_get_cache_field_hit(monkeypatch, prefix=FUNC_PREFIX, data=DummyTransactionsData().to_dict())
-        sim_pagination_fail(monkeypatch, prefix=FUNC_PREFIX)
         
-        response = client.get("/api/transactions/get-by?page=1&limit=20")
+        # Simulate an unexpected error in cache service
+        def raise_error(user_id, field):
+            raise Exception("Unexpected error")
+            
+        monkeypatch.setattr(
+            "backend.routes.transactions_routes.get_user_cache_field",
+            raise_error
+        )
+
+        response = client.get("/api/transactions/list?page=1&limit=20")
         assert response.status_code == 500
-        assert response.get_json()["success"] is False
-        assert response.get_json()["message"] == "Unable to load transactions."
+        data = response.get_json()
+        assert data == {
+            "success": False,
+            "message": "Internal server error while retrieving transactions"
+        }
