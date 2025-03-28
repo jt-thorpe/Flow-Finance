@@ -36,6 +36,7 @@ const Navbar = () => {
             {/* Mobile Menu Button */}
             {isMobile && (
                 <button
+                    data-testid="mobile-menu-button"
                     className="p-4 text-gray-700 focus:outline-none fixed top-4 left-4 z-50 bg-white shadow-md rounded-full"
                     onClick={() => setIsOpen(!isOpen)}
                 >
@@ -67,7 +68,7 @@ const Navbar = () => {
             {/* Overlay Navigation (Floating Menu on Mobile) */}
             {isMobile && isOpen && (
                 <>
-                    <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsOpen(false)}></div>
+                    <div data-testid="mobile-overlay" className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={() => setIsOpen(false)}></div>
                     <nav className="fixed top-12 left-12 w-64 bg-white shadow-md z-50 p-6 rounded-lg">
                         <ul className="flex flex-col space-y-4">
                             {navItems.map((item) => (

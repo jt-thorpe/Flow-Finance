@@ -6,7 +6,7 @@ const DashboardTransactions: React.FC<{ transactions: Transaction[] }> = ({ tran
     const transactionsByMonth = groupByMonth(transactions);
 
     return (
-        <div>
+        <div role="region" aria-label="Transactions by month">
             {Object.keys(transactionsByMonth).map(month => (
                 <MonthTransactionsCard key={month} month={month} transactions={transactionsByMonth[month]} />
             ))}

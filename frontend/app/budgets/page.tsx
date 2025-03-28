@@ -91,18 +91,18 @@ const Budgets = () => {
         <main className="flex flex-col items-center min-v-screen px-4 py-8 bg-gray-100">
             <div className="flex min-h-screen bg-gray-100 relative">
                 <div
-                    className={`fixed top-0 left-0 h-screen bg-white shadow-md transition-transform duration-300 ${isMobile ? (isNavOpen ? "translate-x-0 w-64" : "-translate-x-full w-0") : "w-64 translate-x-0"
+                    className={`fixed top-0 left-0 h-screen bg-white shadow-md transition-transform duration-300 z-[100] ${isMobile ? (isNavOpen ? "translate-x-0 w-64" : "-translate-x-full w-0") : "w-64 translate-x-0"
                         }`}
                 >
                     <Navbar />
                 </div>
                 {isMobile && isNavOpen && (
                     <div
-                        className="fixed inset-0 bg-black bg-opacity-50 z-40"
+                        className="fixed inset-0 bg-black bg-opacity-50 z-[90]"
                         onClick={() => setIsNavOpen(false)}
                     ></div>
                 )}
-                <div className="flex-1 p-6 transition-all duration-300 md:ml-64">
+                <div className="flex-1 p-6 transition-all duration-300 md:ml-64 relative z-0">
                     <section className="bg-white shadow-md rounded-2xl p-8 w-full max-w-4xl">
                         <h1 className="text-3xl font-bold text-center mb-6 text-gray-900">Your Budgets</h1>
                         {/* Control Buttons for Adding and Removing */}

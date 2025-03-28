@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 import BudgetItem from "../../types/BudgetItem";
 import EditBudgetModal from "./EditBudgetModal";
@@ -19,21 +19,37 @@ const BudgetCard = ({
     const [isEditModalOpen, setEditModalOpen] = useState(false);
     const [editedBudget, setEditedBudget] = useState({ ...budget });
 
-    // In removal mode, clicking toggles selection; otherwise, open the edit modal.
-    const handleCardClick = () => {
+    const handleCardClick = useCallback(() => {
         if (isRemoveMode) {
             toggleSelection();
         } else {
             setEditModalOpen(true);
         }
-    };
+    }, [isRemoveMode, toggleSelection]);
+
+    const handleSave = useCallback((updatedBudget: BudgetItem) => {
+        setEditedBudget(updatedBudget);
+        // Replace with your update logic (API call or state update)
+        console.log("Updated Budget", updatedBudget);
+        setEditModalOpen(false);
+    }, []);
+
+    const handleCancel = useCallback(() => {
+        setEditModalOpen(false);
+    }, []);
 
     // Prepare pie chart data and colors
     const pieData = [
-        { name: "Spent", value: budget.spent },
-        { name: "Remaining", value: budget.amount - budget.spent },
+        { name: "Spent", value: parseFloat(budget.spent) || 0 },
+        { name: "Remaining", value: (parseFloat(budget.amount) || 0) - (parseFloat(budget.spent) || 0) },
     ];
     const COLOURS = ["#FF6B6B", "#4CAF50"];
+
+    // Helper function to format currency values
+    const formatCurrency = (value: string | number) => {
+        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+        return isNaN(numValue) ? '£0.00' : `£${numValue.toFixed(2)}`;
+    };
 
     return (
         <div
@@ -64,9 +80,9 @@ const BudgetCard = ({
             </div>
             <div className={`${isMobile ? "w-full text-center" : "w-1/4 pl-4"}`}>
                 <h2 className="text-lg font-semibold">{budget.category}</h2>
-                <p className="text-gray-700">Total: £{budget.amount.toFixed(2)}</p>
-                <p className="text-red-500">Spent: £{budget.spent.toFixed(2)}</p>
-                <p className="text-green-500">Remaining: £{budget.remaining.toFixed(2)}</p>
+                <p className="text-gray-700">Total: {formatCurrency(budget.amount)}</p>
+                <p className="text-red-500">Spent: {formatCurrency(budget.spent)}</p>
+                <p className="text-green-500">Remaining: {formatCurrency(budget.remaining)}</p>
                 <p className="text-gray-500 text-sm">Frequency: {budget.frequency}</p>
             </div>
             <div
@@ -84,17 +100,12 @@ const BudgetCard = ({
             {isEditModalOpen && !isRemoveMode && (
                 <EditBudgetModal
                     budget={editedBudget}
-                    onSave={(updatedBudget) => {
-                        // Replace with your update logic (API call or state update)
-                        console.log("Updated Budget", updatedBudget);
-                        setEditModalOpen(false);
-                    }}
-                    onCancel={() => setEditModalOpen(false)}
+                    onSave={handleSave}
+                    onCancel={handleCancel}
                 />
             )}
             {!isEditModalOpen && (
                 <button
-                    onClick={handleCardClick}
                     className="absolute inset-0 w-full h-full opacity-0"
                 ></button>
             )}

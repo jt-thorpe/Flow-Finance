@@ -16,17 +16,29 @@ const EmailInput: React.FC<EmailInputProps> = ({ register, emailValue, error }) 
         if (!emailValue.includes("@")) return; // improve validation
 
         const checkEmailAvailability = async () => {
+            if (!emailValue || !emailValue.includes('@')) {
+                setEmailError('');
+                return;
+            }
+
             try {
-                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/check-taken?email=${encodeURIComponent(emailValue)}`);
+                const response = await fetch(`/api/users/check-taken?email=${encodeURIComponent(emailValue)}`);
                 const data = await response.json();
 
+                if (!response.ok || !data.success) {
+                    console.error("Error checking email availability:", data.message);
+                    setEmailError(data.message);
+                    return;
+                }
+
                 if (data.taken) {
-                    setEmailError("Email is already taken.");
+                    setEmailError("Email is already taken");
                 } else {
-                    setEmailError(null);
+                    setEmailError("");
                 }
             } catch (error) {
-                console.error("Error checking email:", error);
+                console.error(error);
+                setEmailError(error instanceof Error ? error.message : "Error checking email availability");
             }
         };
 
