@@ -27,7 +27,7 @@ jobs:
 
     - name: Run Python tests
       run: |
-        pytest
+        python -m pytest
 
     - name: Set up Node.js
       uses: actions/setup-node@v3
