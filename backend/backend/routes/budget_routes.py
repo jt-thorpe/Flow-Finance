@@ -6,8 +6,24 @@ from backend.services.cache_services import (
 from backend.services.users_services import get_user_with_associations
 from backend.extensions import logger
 from flask import Blueprint, Response, g, jsonify
+from typing import Any, List, Dict
 
 budgets_blueprint = Blueprint("budgets", __name__, url_prefix="/api/budgets")
+
+
+def validate_budget_data(data: Any) -> bool:
+    """
+    Validate that the data is a list of budget dictionaries.
+    
+    Args:
+        data: The data to validate
+        
+    Returns:
+        bool: True if valid, False otherwise
+    """
+    if not isinstance(data, list):
+        return False
+    return all(isinstance(item, dict) for item in data)
 
 
 @budgets_blueprint.route("/load", methods=["GET"])
@@ -15,20 +31,43 @@ budgets_blueprint = Blueprint("budgets", __name__, url_prefix="/api/budgets")
 def load_budgets() -> tuple[Response, int]:
     """
     Load the user's budget data.
-    
-    Attempts to retrieve budget data from cache first, falling back to database if needed.
-    Caches database results for future requests.
-    
+
     Returns:
-        tuple: (Response, int) containing:
-            - JSON response with budget data and status
-            - HTTP status code (200 for success, 404 for not found, 500 for errors)
+        tuple[Response, int]: (response, status_code)
+            - 200: Success with budget data
+            - 401: User not authenticated
+            - 404: No budget data found
+            - 500: Internal server error
+
+    Response Format:
+        Success (200):
+            {
+                "success": true,
+                "message": str,  # "Budgets loaded from cache" | "Budgets loaded from database"
+                "budgets": list[dict]  # List of budget objects
+            }
+        Error (401/404/500):
+            {
+                "success": false,
+                "message": str
+            }
     """
     try:
+        if not hasattr(g, 'user_id'):
+            logger.error("budget_routes.load_budgets : No user_id in request context")
+            return jsonify({
+                "success": False,
+                "message": "Authentication required"
+            }), 401
+
         user_id = g.user_id
         cached_user_budgets = get_user_cache_field(user_id=user_id, field="budgets")
 
         if cached_user_budgets:
+            if not validate_budget_data(cached_user_budgets):
+                logger.error(f"budget_routes.load_budgets : Invalid cache data structure for user {user_id}")
+                raise ValueError("Invalid cache data structure")
+                
             logger.info(f"budget_routes.load_budgets : Cache hit for user {user_id}")
             return jsonify({
                 "success": True,
